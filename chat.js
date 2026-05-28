@@ -1,165 +1,178 @@
 // ============================================
-// ANNA40 — CHAT (Gemini IA)
-// Només per admin
+// ANNA40 — CHAT integrat (Gemini IA)
 // ============================================
 
 const Chat = (() => {
   const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.GEMINI_MODEL}:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
 
-  let _photos    = [];
-  let _history   = [];
-  let _container = null;
+  let _photos   = [];
+  let _history  = [];
+  let _isAdmin  = false;
+  let _isOpen   = false;
 
-  function init(photos) {
-    _photos    = photos;
-    _history   = [];
-    _container = document.getElementById('chat-messages');
-    _renderWelcome();
+  function init(photos, isAdmin) {
+    _photos  = photos;
+    _isAdmin = isAdmin;
 
-    document.getElementById('chat-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    const input   = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send');
+    const clearBtn= document.getElementById('chat-clear');
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); _handleInput(); }
     });
-    document.getElementById('chat-send').addEventListener('click', sendMessage);
+    sendBtn.addEventListener('click', _handleInput);
+    clearBtn.addEventListener('click', clearChat);
+
+    // Obrir xat en focus
+    input.addEventListener('focus', () => _openChat());
   }
 
   function updatePhotos(photos) { _photos = photos; }
 
-  function _renderWelcome() {
-    _addMessage('ia', `Hola! Soc el teu assistent per trobar fotos. Pots preguntar-me coses com:\n\n• "Mostra'm fotos amb el Roger a la platja"\n• "Quines fotos hi ha de l'any 2022?"\n• "Fotos de Nadal amb la família"\n• "Quan vam anar a Viatges el 2023?"`);
-  }
-
-  async function sendMessage() {
+  // ── Gestionar input: cerca simple o xat IA ──
+  async function _handleInput() {
     const input = document.getElementById('chat-input');
     const text  = input.value.trim();
     if (!text) return;
 
     input.value = '';
+    _openChat();
     _addMessage('user', text);
+
+    // Si és admin → usar Gemini IA
+    // Si no → cerca per text simple
+    if (_isAdmin) {
+      await _queryGemini(text);
+    } else {
+      _simpleSearch(text);
+    }
+  }
+
+  // ── Cerca simple (usuaris no-admin) ──────────
+  function _simpleSearch(text) {
+    const q = text.toLowerCase();
+    const found = _photos.filter(p => {
+      const searchable = [p.any, p.lloc, p.notes, ...p.persones, ...p.categoria].join(' ').toLowerCase();
+      return searchable.includes(q);
+    });
+
+    const msg = found.length > 0
+      ? `He trobat ${found.length} foto${found.length !== 1 ? 's' : ''} relacionades amb "${text}".`
+      : `No he trobat fotos relacionades amb "${text}". Prova amb altres paraules.`;
+
+    _addMessage('ia', msg);
+    Gallery.filterByPhotos(found.length > 0 ? found : null, text);
+    _setStatus(found.length > 0 ? `${found.length} fotos trobades` : '');
+  }
+
+  // ── Gemini IA (admin) ─────────────────────────
+  async function _queryGemini(text) {
     _setLoading(true);
 
     try {
-      // Construir context amb totes les fotos
-      const photosContext = _photos.map((p, i) =>
-        `[${i}] Any:${p.any} | Lloc:${p.lloc} | Persones:${p.persones.join(',')} | Categoria:${p.categoria.join(',')} | Notes:${p.notes} | ID:${p.fileId}`
+      const photosCtx = _photos.map((p, i) =>
+        `[${i}] Any:${p.any}|Lloc:${p.lloc}|Persones:${p.persones.join(',')}|Cat:${p.categoria.join(',')}|Notes:${p.notes}`
       ).join('\n');
 
-      const systemPrompt = `Ets un assistent que ajuda a trobar fotos d'un grup d'amics. 
-Tens accés a ${_photos.length} fotos amb els seus tags.
+      const prompt = `Ets un assistent que ajuda a trobar fotos d'un grup d'amics d'en Roger per sorprendre l'Anna pel seu 40è aniversari.
+Tens ${_photos.length} fotos amb tags.
 
-FOTOS DISPONIBLES:
-${photosContext}
+FOTOS:
+${photosCtx}
 
-Quan l'usuari faci una cerca:
-1. Identifica quines fotos coincideixen amb la seva consulta
-2. Respon de manera natural i amigable en català
-3. Llista els índexs de les fotos trobades en format JSON al final: {"found": [0, 3, 7]}
-4. Si no trobes res, digues-ho amablement
+Consulta: "${text}"
 
-Sempre acaba la resposta amb el JSON {"found": [...]} amb els índexs de les fotos trobades, o {"found": []} si no n'hi ha.`;
-
-      const contents = [
-        ..._history,
-        { role: 'user', parts: [{ text: systemPrompt + '\n\nConsulta: ' + text }] }
-      ];
+Respon en català de manera breu i amigable (1-2 frases).
+Identifica les fotos que coincideixen.
+Acaba SEMPRE amb: {"found":[índexs]}
+Si no en trobes: {"found":[]}`;
 
       const res = await fetch(GEMINI_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents, generationConfig: { temperature: 0.3, maxOutputTokens: 1000 } })
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 600 }
+        })
       });
 
-      if (!res.ok) throw new Error('Error Gemini: ' + res.status);
+      if (!res.ok) throw new Error('Error Gemini ' + res.status);
       const data     = await res.json();
-      const respText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No he pogut processar la resposta.';
+      const respText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-      // Extreure índexs de fotos trobades
+      // Extreure índexs
       const jsonMatch = respText.match(/\{"found":\s*\[([^\]]*)\]\}/);
-      let foundIndexes = [];
+      let found = [];
       if (jsonMatch) {
-        try {
-          const parsed = JSON.parse(jsonMatch[0]);
-          foundIndexes = parsed.found || [];
-        } catch(e) {}
+        try { found = JSON.parse(jsonMatch[0]).found || []; } catch(e) {}
       }
 
-      // Missatge net (sense JSON)
       const cleanText = respText.replace(/\{"found":\s*\[[^\]]*\]\}/g, '').trim();
-      _addMessage('ia', cleanText, foundIndexes.map(i => _photos[i]).filter(Boolean));
+      _addMessage('ia', cleanText || (found.length > 0 ? `He trobat ${found.length} fotos.` : 'No he trobat res.'));
 
-      // Guardar historial (simplificat)
-      _history.push({ role: 'user',  parts: [{ text }] });
-      _history.push({ role: 'model', parts: [{ text: respText }] });
-      if (_history.length > 10) _history = _history.slice(-10); // màx 5 torns
+      const foundPhotos = found.map(i => _photos[i]).filter(Boolean);
+      Gallery.filterByPhotos(foundPhotos.length > 0 ? foundPhotos : null, text);
+      _setStatus(foundPhotos.length > 0 ? `${foundPhotos.length} fotos trobades per IA` : '');
 
     } catch (err) {
-      console.error('Error chat:', err);
-      _addMessage('ia', 'Hi ha hagut un error. Torna-ho a intentar.');
+      console.error('Chat error:', err);
+      _addMessage('ia', 'Hi ha hagut un error. Provo una cerca simple...');
+      _simpleSearch(text);
     } finally {
       _setLoading(false);
     }
   }
 
-  function _addMessage(role, text, photos = []) {
-    const div = document.createElement('div');
-    div.className = `chat-msg chat-msg-${role}`;
-
-    const bubble = document.createElement('div');
-    bubble.className = 'chat-bubble';
-    bubble.innerHTML = text.replace(/\n/g, '<br>');
-    div.appendChild(bubble);
-
-    // Miniatures de fotos trobades
-    if (photos.length > 0) {
-      const grid = document.createElement('div');
-      grid.className = 'chat-photo-grid';
-      photos.slice(0, 6).forEach(photo => {
-        const img = document.createElement('img');
-        img.src       = photo.url;
-        img.className = 'chat-photo-thumb';
-        img.title     = `${photo.any} · ${photo.lloc}`;
-        img.addEventListener('click', () => {
-          if (typeof Gallery !== 'undefined') Gallery.openLightbox(photo);
-        });
-        grid.appendChild(img);
-      });
-      if (photos.length > 6) {
-        const more = document.createElement('div');
-        more.className   = 'chat-photo-more';
-        more.textContent = `+${photos.length - 6} més`;
-        grid.appendChild(more);
-      }
-      div.appendChild(grid);
-    }
-
-    _container.appendChild(div);
-    _container.scrollTop = _container.scrollHeight;
+  // ── UI helpers ────────────────────────────────
+  function _openChat() {
+    if (_isOpen) return;
+    _isOpen = true;
+    document.getElementById('chat-messages-inline').classList.add('open');
   }
 
-  function _setLoading(loading) {
+  function clearChat() {
+    _history = [];
+    _isOpen  = false;
+    document.getElementById('chat-messages-inline').innerHTML = '';
+    document.getElementById('chat-messages-inline').classList.remove('open');
+    document.getElementById('chat-status').textContent = '';
+    Gallery.filterByPhotos(null, '');
+    _setStatus('');
+  }
+
+  function _addMessage(role, text) {
+    const container = document.getElementById('chat-messages-inline');
+    const div       = document.createElement('div');
+    div.className   = `chat-msg chat-msg-${role}`;
+    const bubble    = document.createElement('div');
+    bubble.className= 'chat-bubble';
+    bubble.innerHTML= text.replace(/\n/g, '<br>');
+    div.appendChild(bubble);
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function _setLoading(on) {
     const btn   = document.getElementById('chat-send');
     const input = document.getElementById('chat-input');
-    btn.disabled   = loading;
-    input.disabled = loading;
-    btn.textContent = loading ? '...' : '➤';
+    btn.disabled   = on;
+    input.disabled = on;
+    btn.textContent= on ? '…' : '➤';
 
-    if (loading) {
-      const div = document.createElement('div');
-      div.className = 'chat-msg chat-msg-ia';
-      div.id        = 'chat-loading';
-      div.innerHTML = '<div class="chat-bubble chat-loading"><span></span><span></span><span></span></div>';
-      _container.appendChild(div);
-      _container.scrollTop = _container.scrollHeight;
+    const status = document.getElementById('chat-status');
+    if (on) {
+      status.innerHTML = '<span class="chat-loading"><span></span><span></span><span></span></span> Buscant...';
     } else {
-      const l = document.getElementById('chat-loading');
-      if (l) l.remove();
+      status.innerHTML = '';
     }
   }
 
-  function clearHistory() {
-    _history   = [];
-    _container.innerHTML = '';
-    _renderWelcome();
+  function _setStatus(text) {
+    const indicator = document.getElementById('chat-mode-indicator');
+    if (indicator) indicator.style.display = text ? 'inline' : 'none';
+    if (indicator) indicator.textContent = text ? `🤖 ${text}` : '';
   }
 
-  return { init, updatePhotos, sendMessage, clearHistory };
+  return { init, updatePhotos, clearChat };
 })();

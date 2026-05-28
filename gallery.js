@@ -182,5 +182,19 @@ const Gallery = (() => {
   function getCurrentPhoto() { return _lightboxPhoto; }
   function getAllPhotos()     { return _allPhotos; }
 
-  return { init, updatePhotos, applyFilters, resetFilters, openLightbox, closeLightbox, getCurrentPhoto, getAllPhotos };
+  // ── Filtrar per llista concreta (des del xat) ─
+  function filterByPhotos(photos, label) {
+    const indicator = document.getElementById('chat-mode-indicator');
+    if (!photos) {
+      // Reset a tots
+      _filteredPhotos = _allPhotos;
+      if (indicator) indicator.style.display = 'none';
+    } else {
+      _filteredPhotos = photos;
+      if (indicator) { indicator.style.display = 'inline'; }
+    }
+    _renderGallery();
+  }
+
+  return { init, updatePhotos, applyFilters, resetFilters, openLightbox, closeLightbox, getCurrentPhoto, getAllPhotos, filterByPhotos };
 })();

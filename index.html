@@ -2,11 +2,13 @@
 <html lang="ca">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Anna40 — Els nostres records</title>
   <meta name="description" content="Les fotos del teu 40è aniversari" />
+  <meta name="theme-color" content="#0d0d0d" />
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="main.css" />
@@ -15,7 +17,6 @@
 
   <!-- LOGIN -->
   <div id="screen-login" class="screen active">
-    <div class="login-bg"></div>
     <div class="login-card">
       <div class="login-deco">✨</div>
       <h1 class="login-title">Anna<span class="login-40">40</span></h1>
@@ -35,9 +36,8 @@
     <header class="app-header">
       <div class="header-logo">Anna<span class="logo-40">40</span></div>
       <nav class="header-nav">
-        <button class="nav-tab active" data-tab="galeria">📸 Fotos</button>
-        <button class="nav-tab" id="tab-btn-chat" data-tab="chat" style="display:none">💬 Xat IA</button>
-        <button class="nav-tab" id="tab-btn-admin" data-tab="admin" style="display:none">⚙️ Admin</button>
+        <button class="nav-tab active" data-tab="galeria">📸 <span>Fotos</span></button>
+        <button class="nav-tab" id="tab-btn-admin" data-tab="admin" style="display:none">⚙️ <span>Admin</span></button>
       </nav>
       <div class="header-user">
         <img id="user-avatar" src="" alt="avatar" class="avatar" />
@@ -46,41 +46,56 @@
       </div>
     </header>
 
-    <!-- PANEL: GALERIA -->
+    <!-- PANEL: GALERIA + XAT INTEGRAT -->
     <div id="panel-galeria" class="tab-panel">
 
-      <!-- FILTRES -->
+      <!-- FILTRES PILLS -->
       <div class="filters-bar">
-        <input type="text" id="filter-text" class="filter-input" placeholder="🔍 Cerca lliure..." />
-        <select id="filter-any" class="filter-select"><option value="">Tots els anys</option></select>
-        <select id="filter-persona" class="filter-select"><option value="">Totes les persones</option></select>
-        <select id="filter-categoria" class="filter-select"><option value="">Totes les categories</option></select>
-        <select id="filter-lloc" class="filter-select"><option value="">Tots els llocs</option></select>
-        <button id="btn-reset-filters" class="btn-reset">✕ Netejar</button>
+        <div class="filter-pill">
+          <span>📅</span>
+          <select id="filter-any"><option value="">Tots els anys</option></select>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-pill">
+          <span>👤</span>
+          <select id="filter-persona"><option value="">Tothom</option></select>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-pill">
+          <span>🏷️</span>
+          <select id="filter-categoria"><option value="">Totes les categories</option></select>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-pill">
+          <span>📍</span>
+          <select id="filter-lloc"><option value="">Tots els llocs</option></select>
+        </div>
+        <div class="filter-sep"></div>
+        <button id="btn-reset-filters" class="btn-reset-pill">✕ Netejar</button>
       </div>
+
       <div class="gallery-meta">
         <span id="gallery-count"></span>
+        <span id="chat-mode-indicator" style="display:none;color:var(--accent);font-size:0.7rem">🤖 Resultats del xat IA</span>
       </div>
 
       <!-- GALERIA -->
-      <div id="gallery-grid" class="gallery-grid"></div>
-      <div id="gallery-empty" class="gallery-empty hidden">Cap foto trobada amb aquests filtres.</div>
+      <div class="gallery-scroll">
+        <div id="gallery-grid" class="gallery-grid"></div>
+        <div id="gallery-empty" class="gallery-empty hidden">Cap foto trobada.</div>
+      </div>
 
-    </div>
-
-    <!-- PANEL: CHAT IA (admin) -->
-    <div id="panel-chat" class="tab-panel hidden">
-      <div class="chat-wrap">
-        <div class="chat-header">
-          <h2 class="chat-title">💬 Xat amb IA</h2>
-          <button id="btn-clear-chat" class="btn-secondary" onclick="Chat.clearHistory()">Netejar xat</button>
-        </div>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input-wrap">
-          <textarea id="chat-input" class="chat-input" placeholder="Pregunta'm sobre les fotos..." rows="2"></textarea>
+      <!-- XAT INTEGRAT (barra inferior) -->
+      <div class="chat-bar" id="chat-bar">
+        <div id="chat-messages-inline" class="chat-messages-inline"></div>
+        <div class="chat-status" id="chat-status"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" class="chat-input" placeholder="Cerca o pregunta sobre les fotos..." />
           <button id="chat-send" class="chat-send-btn">➤</button>
+          <button id="chat-clear" class="chat-clear-btn" title="Netejar xat">✕</button>
         </div>
       </div>
+
     </div>
 
     <!-- PANEL: ADMIN -->
@@ -154,9 +169,9 @@
         <img id="lightbox-img" src="" alt="" />
       </div>
       <div class="lightbox-info">
-        <div class="lightbox-meta">
-          <span id="lightbox-any" class="lightbox-any"></span>
-          <span id="lightbox-lloc" class="lightbox-lloc"></span>
+        <div>
+          <div id="lightbox-any" class="lightbox-any"></div>
+          <div id="lightbox-lloc" class="lightbox-lloc"></div>
         </div>
         <div id="lightbox-persones" class="lightbox-persones"></div>
         <div id="lightbox-cats" class="lightbox-cats"></div>
@@ -172,6 +187,7 @@
   <!-- MODAL EDITAR (admin) -->
   <div id="edit-modal-overlay" class="modal-overlay hidden">
     <div class="modal-card">
+      <div class="modal-handle"></div>
       <button id="edit-modal-close" class="modal-close">✕</button>
       <div class="modal-body">
         <h3 class="section-title" style="margin-bottom:1rem">Editar foto</h3>
@@ -242,6 +258,5 @@
   <script src="chat.js"></script>
   <script src="admin.js"></script>
   <script src="app.js"></script>
-
 </body>
 </html>
