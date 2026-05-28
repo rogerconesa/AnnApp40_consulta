@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anna40 — Els nostres records</title>
+  <meta name="description" content="Les fotos del teu 40è aniversari" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="main.css" />
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="login-bg"></div>
+    <div class="login-card">
+      <div class="login-deco">✨</div>
+      <h1 class="login-title">Anna<span class="login-40">40</span></h1>
+      <p class="login-sub">Els nostres records per al teu dia especial</p>
+      <button id="btn-google-login" class="btn-google">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+        Entra amb Google
+      </button>
+      <p class="login-note">Accés restringit als convidats</p>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="screen-app" class="screen">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-logo">Anna<span class="logo-40">40</span></div>
+      <nav class="header-nav">
+        <button class="nav-tab active" data-tab="galeria">📸 Fotos</button>
+        <button class="nav-tab" id="tab-btn-chat" data-tab="chat" style="display:none">💬 Xat IA</button>
+        <button class="nav-tab" id="tab-btn-admin" data-tab="admin" style="display:none">⚙️ Admin</button>
+      </nav>
+      <div class="header-user">
+        <img id="user-avatar" src="" alt="avatar" class="avatar" />
+        <span id="user-name"></span>
+        <button id="btn-logout" class="btn-logout" title="Tancar sessió">↩</button>
+      </div>
+    </header>
+
+    <!-- PANEL: GALERIA -->
+    <div id="panel-galeria" class="tab-panel">
+
+      <!-- FILTRES -->
+      <div class="filters-bar">
+        <input type="text" id="filter-text" class="filter-input" placeholder="🔍 Cerca lliure..." />
+        <select id="filter-any" class="filter-select"><option value="">Tots els anys</option></select>
+        <select id="filter-persona" class="filter-select"><option value="">Totes les persones</option></select>
+        <select id="filter-categoria" class="filter-select"><option value="">Totes les categories</option></select>
+        <select id="filter-lloc" class="filter-select"><option value="">Tots els llocs</option></select>
+        <button id="btn-reset-filters" class="btn-reset">✕ Netejar</button>
+      </div>
+      <div class="gallery-meta">
+        <span id="gallery-count"></span>
+      </div>
+
+      <!-- GALERIA -->
+      <div id="gallery-grid" class="gallery-grid"></div>
+      <div id="gallery-empty" class="gallery-empty hidden">Cap foto trobada amb aquests filtres.</div>
+
+    </div>
+
+    <!-- PANEL: CHAT IA (admin) -->
+    <div id="panel-chat" class="tab-panel hidden">
+      <div class="chat-wrap">
+        <div class="chat-header">
+          <h2 class="chat-title">💬 Xat amb IA</h2>
+          <button id="btn-clear-chat" class="btn-secondary" onclick="Chat.clearHistory()">Netejar xat</button>
+        </div>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input-wrap">
+          <textarea id="chat-input" class="chat-input" placeholder="Pregunta'm sobre les fotos..." rows="2"></textarea>
+          <button id="chat-send" class="chat-send-btn">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: ADMIN -->
+    <div id="panel-admin" class="tab-panel hidden">
+      <div class="admin-wrap">
+        <h2 class="section-title">⚙️ Afegir fotos</h2>
+
+        <div id="admin-drop-zone" class="drop-zone">
+          <div class="drop-icon">📷</div>
+          <p class="drop-title">Arrossega fotos aquí</p>
+          <p class="drop-sub">o clica per seleccionar</p>
+          <input type="file" id="admin-file-input" accept="image/*" multiple hidden />
+        </div>
+
+        <div id="admin-preview" class="admin-preview-grid"></div>
+
+        <div id="admin-upload-form" class="tags-section hidden">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Any</label>
+              <input type="number" id="admin-any" class="form-input" placeholder="2024" min="1990" max="2030" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lloc</label>
+              <input type="text" id="admin-lloc" class="form-input" placeholder="Barcelona, platja..." />
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Categoria</label>
+              <div class="tag-chips" id="admin-chips-categoria">
+                <button class="chip" data-value="Festa">🎉 Festa</button>
+                <button class="chip" data-value="Viatges">✈️ Viatges</button>
+                <button class="chip" data-value="Platja">🏖️ Platja</button>
+                <button class="chip" data-value="Dinar">🍽️ Dinar</button>
+                <button class="chip" data-value="Aniversari">🎂 Aniversari</button>
+                <button class="chip" data-value="Sopar">🌙 Sopar</button>
+                <button class="chip" data-value="Nadal">🎄 Nadal</button>
+                <button class="chip" data-value="Esport">⚽ Esport</button>
+                <button class="chip" data-value="Barça">🔵🔴 Barça</button>
+                <button class="chip" data-value="Barbacoa">🔥 Barbacoa</button>
+                <button class="chip" data-value="Karaoke">🎤 Karaoke</button>
+                <button class="chip" data-value="Bar">🍻 Bar</button>
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Persones</label>
+              <div class="tag-chips" id="admin-chips-persones"></div>
+              <div class="add-persona">
+                <input type="text" id="admin-input-persona" class="form-input small" placeholder="Afegir persona..." />
+                <button id="admin-btn-add-persona" class="btn-secondary">+ Afegir</button>
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Notes</label>
+              <textarea id="admin-notes" class="form-input" rows="2" placeholder="Alguna cosa a destacar..."></textarea>
+            </div>
+          </div>
+          <button id="admin-btn-upload" class="btn-upload">Pujar fotos</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox-overlay" class="lightbox-overlay hidden">
+    <button id="lightbox-close" class="lightbox-close">✕</button>
+    <button id="lightbox-prev" class="lightbox-nav lightbox-prev">‹</button>
+    <button id="lightbox-next" class="lightbox-nav lightbox-next">›</button>
+    <div class="lightbox-content">
+      <div class="lightbox-img-wrap">
+        <img id="lightbox-img" src="" alt="" />
+      </div>
+      <div class="lightbox-info">
+        <div class="lightbox-meta">
+          <span id="lightbox-any" class="lightbox-any"></span>
+          <span id="lightbox-lloc" class="lightbox-lloc"></span>
+        </div>
+        <div id="lightbox-persones" class="lightbox-persones"></div>
+        <div id="lightbox-cats" class="lightbox-cats"></div>
+        <p id="lightbox-notes" class="lightbox-notes"></p>
+        <p id="lightbox-pujat" class="lightbox-pujat"></p>
+        <div id="lightbox-admin-actions" class="lightbox-admin-actions" style="display:none">
+          <button id="lightbox-btn-edit" class="btn-secondary">✏️ Editar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR (admin) -->
+  <div id="edit-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button id="edit-modal-close" class="modal-close">✕</button>
+      <div class="modal-body">
+        <h3 class="section-title" style="margin-bottom:1rem">Editar foto</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Any</label>
+            <input type="number" id="edit-any" class="form-input" min="1990" max="2030" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lloc</label>
+            <input type="text" id="edit-lloc" class="form-input" />
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Categoria</label>
+            <div class="tag-chips" id="edit-chips-categoria">
+              <button class="chip" data-value="Festa">🎉 Festa</button>
+              <button class="chip" data-value="Viatges">✈️ Viatges</button>
+              <button class="chip" data-value="Platja">🏖️ Platja</button>
+              <button class="chip" data-value="Dinar">🍽️ Dinar</button>
+              <button class="chip" data-value="Aniversari">🎂 Aniversari</button>
+              <button class="chip" data-value="Sopar">🌙 Sopar</button>
+              <button class="chip" data-value="Nadal">🎄 Nadal</button>
+              <button class="chip" data-value="Esport">⚽ Esport</button>
+              <button class="chip" data-value="Barça">🔵🔴 Barça</button>
+              <button class="chip" data-value="Barbacoa">🔥 Barbacoa</button>
+              <button class="chip" data-value="Karaoke">🎤 Karaoke</button>
+              <button class="chip" data-value="Bar">🍻 Bar</button>
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Persones</label>
+            <div class="tag-chips" id="edit-chips-persones"></div>
+            <div class="add-persona">
+              <input type="text" id="edit-input-persona" class="form-input small" placeholder="Afegir persona..." />
+              <button id="edit-btn-add-persona" class="btn-secondary">+ Afegir</button>
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Notes</label>
+            <textarea id="edit-notes" class="form-input" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="edit-btn-delete" class="btn-delete">🗑️ Eliminar</button>
+          <button id="edit-btn-save" class="btn-upload" style="flex:1;margin-top:0">Guardar canvis</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="loading-spinner"></div>
+    <p id="loading-text" class="loading-text">Carregant fotos...</p>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- SCRIPTS -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="ui.js"></script>
+  <script src="sheets.js"></script>
+  <script src="drive.js"></script>
+  <script src="gallery.js"></script>
+  <script src="chat.js"></script>
+  <script src="admin.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
