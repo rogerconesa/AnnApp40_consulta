@@ -43,24 +43,26 @@
     <!-- GALERIA -->
     <div id="panel-galeria" class="tab-panel">
 
-      <!-- Cerca -->
-      <div class="search-bar">
-        <div class="search-input-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" class="search-input" placeholder="Cerca per persona, lloc, categoria..." autocomplete="off" />
-          <button id="search-clear" class="search-clear">✕</button>
-          <div id="search-suggestions" class="search-suggestions hidden"></div>
+      <!-- Filtres compactes -->
+      <div class="filters-bar">
+        <!-- Selectors -->
+        <div class="filters-row">
+          <select id="filter-persona" class="filter-select">
+            <option value="">👤 Persona</option>
+          </select>
+          <select id="filter-lloc" class="filter-select">
+            <option value="">📍 Lloc</option>
+          </select>
+          <select id="filter-categoria" class="filter-select">
+            <option value="">🏷️ Categoria</option>
+          </select>
+          <button id="btn-reset-filters" class="btn-reset-pill">✕</button>
         </div>
 
-        <!-- Filtres actius (pills) -->
-        <div id="active-filters" class="filter-pills"></div>
-
-        <!-- Slider d'anys -->
-        <div class="year-slider-wrap">
-          <div class="year-slider-header">
-            <span class="year-slider-label">📅 Anys</span>
-            <span class="year-slider-values" id="year-slider-values">—</span>
-          </div>
+        <!-- Slider any compacte -->
+        <div class="year-slider-compact">
+          <span class="year-slider-mini-label">📅</span>
+          <span class="year-slider-mini-values" id="year-slider-values">—</span>
           <div class="year-slider">
             <div class="year-slider-track"></div>
             <div class="year-slider-track-active" id="year-slider-track-active"></div>
@@ -68,6 +70,18 @@
             <input type="range" id="year-max" />
           </div>
         </div>
+      </div>
+
+      <!-- Xat IA amb Gemini -->
+      <div class="ia-search-bar">
+        <div class="ia-search-input-wrap">
+          <span class="ia-icon">✨</span>
+          <input type="text" id="ia-input" class="ia-input" placeholder="Pregunta-li a la IA: 'fotos amb Roger a la platja'..." autocomplete="off" />
+          <button id="ia-send" class="ia-send-btn">➤</button>
+          <button id="ia-clear" class="ia-clear-btn hidden">✕</button>
+        </div>
+        <div id="ia-status" class="ia-status hidden"></div>
+        <div id="ia-response" class="ia-response hidden"></div>
       </div>
 
       <div class="gallery-meta">
