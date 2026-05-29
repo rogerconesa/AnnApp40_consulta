@@ -1,5 +1,5 @@
 // ============================================
-// ANNA40 — APP
+// ANNA40 — APP v3
 // ============================================
 
 const App = (() => {
@@ -10,9 +10,10 @@ const App = (() => {
     try {
       _photos = await Sheets.readAll();
       Gallery.updatePhotos(_photos);
-      Chat.updatePhotos(_photos);
-    } catch (err) {
-      UI.showToast('Error carregant fotos: ' + err.message, 'error');
+      if (typeof MapView !== 'undefined') MapView.updatePhotos(_photos);
+    } catch(err) {
+      console.error(err);
+      UI.showToast('Error carregant: ' + err.message, 'error');
     } finally {
       UI.hideLoading();
     }
@@ -25,16 +26,12 @@ const App = (() => {
         UI.setUser(profile, isAdmin);
         UI.showScreen('screen-app');
         await loadPhotos();
-
-        // Inicialitzar mòduls
         Gallery.init(_photos);
-        Chat.init(_photos, isAdmin);
-        if (isAdmin) Admin.initUpload();
+        if (typeof MapView !== 'undefined') MapView.init();
       },
       () => UI.showScreen('screen-login')
     );
 
-    // Login / logout
     document.getElementById('btn-google-login').addEventListener('click', () => Auth.login());
     document.getElementById('btn-logout').addEventListener('click', () => Auth.logout());
 
@@ -46,32 +43,11 @@ const App = (() => {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
         const panel = document.getElementById('panel-' + tab.dataset.tab);
         if (panel) panel.classList.remove('hidden');
-        // Mostrar/ocultar chat bar només a galeria
-        const chatBar = document.getElementById('chat-bar');
-        if (chatBar) chatBar.style.display = tab.dataset.tab === 'galeria' ? 'flex' : 'none';
       });
-    });
-
-    // Filtres galeria
-    ['filter-any','filter-persona','filter-categoria','filter-lloc'].forEach(id => {
-      document.getElementById(id)?.addEventListener('change', () => {
-        Chat.clearChat();
-        Gallery.applyFilters();
-      });
-    });
-    document.getElementById('btn-reset-filters')?.addEventListener('click', () => {
-      Chat.clearChat();
-      Gallery.resetFilters();
-    });
-
-    // Lightbox admin
-    document.getElementById('lightbox-btn-edit')?.addEventListener('click', () => {
-      const photo = Gallery.getCurrentPhoto();
-      if (photo) Admin.openEditModal(photo);
     });
   }
 
-  return { init, loadPhotos, getPhotos: () => _photos };
+  return { init, loadPhotos };
 })();
 
 window.addEventListener('load', () => setTimeout(App.init, 300));
