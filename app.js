@@ -27,7 +27,7 @@ const App = (() => {
         UI.showScreen('screen-app');
         await loadPhotos();
         Gallery.init(_photos);
-        if (typeof MapView !== 'undefined') MapView.init();
+        // Mapa: s'inicialitza lazy quan l'usuari obre la pestanya
       },
       () => UI.showScreen('screen-login')
     );
@@ -43,6 +43,11 @@ const App = (() => {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
         const panel = document.getElementById('panel-' + tab.dataset.tab);
         if (panel) panel.classList.remove('hidden');
+        // Inicialitzar mapa quan s'obre la pestanya
+        if (tab.dataset.tab === 'mapa') {
+          MapView.init();
+          MapView.updatePhotos(_photos);
+        }
       });
     });
   }

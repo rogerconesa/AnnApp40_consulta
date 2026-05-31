@@ -31,6 +31,7 @@
       <div class="header-logo">Anna<span class="logo-40">40</span></div>
       <nav class="header-nav">
         <button class="nav-tab active" data-tab="galeria">📸 Records</button>
+        <button class="nav-tab" data-tab="mapa">🗺️ Mapa</button>
         <button class="nav-tab" id="tab-btn-admin" data-tab="admin" style="display:none">⚙️ Admin</button>
       </nav>
       <div class="header-user">
@@ -97,19 +98,19 @@
           <div id="preferides-scroll" class="preferides-scroll"></div>
         </div>
 
-        <!-- Mapa -->
-        <div id="map-section" class="map-section hidden">
-          <div class="map-section-title">📍 <span>A on van ser preses</span></div>
-          <div id="map-container"></div>
-          <div id="map-no-coords" class="map-no-coords hidden">Cap foto té ubicació registrada.</div>
-        </div>
-
         <!-- Galeria -->
         <div class="gallery-section-title">🖼️ Totes les fotos</div>
         <div id="gallery-grid" class="gallery-grid"></div>
         <div id="gallery-empty" class="gallery-empty hidden">Cap foto trobada amb aquests filtres.</div>
 
       </div>
+    </div>
+
+    <!-- MAPA -->
+    <div id="panel-mapa" class="tab-panel hidden" style="flex:1;display:flex;flex-direction:column">
+      <div class="map-section-title" style="padding:1rem 1rem 0.5rem;font-size:0.92rem;font-weight:600">📍 A on van ser preses</div>
+      <div id="map-container" style="flex:1;min-height:400px"></div>
+      <div id="map-no-coords" class="map-no-coords hidden">Cap foto té ubicació registrada encara.</div>
     </div>
 
     <!-- ADMIN -->

@@ -1,12 +1,11 @@
 // ============================================
-// ANNA40 — MAP v2
-// Mapa amb clusters dins la galeria
+// ANNA40 — MAP v3 — AdvancedMarkerElement
 // ============================================
 
 const MapView = (() => {
-  let _map      = null;
-  let _markers  = [];
-  let _photos   = [];
+  let _map         = null;
+  let _markers     = [];
+  let _photos      = [];
   let _initialized = false;
 
   function init() {
@@ -16,7 +15,6 @@ const MapView = (() => {
       return;
     }
     _initMap();
-    _initialized = true;
   }
 
   function updatePhotos(photos) {
@@ -24,100 +22,104 @@ const MapView = (() => {
     if (_initialized) _renderMarkers();
   }
 
-  function _initMap() {
+  async function _initMap() {
     const container = document.getElementById('map-container');
     if (!container) return;
 
-    _map = new google.maps.Map(container, {
+    const { Map } = await google.maps.importLibrary('maps');
+
+    _map = new Map(container, {
       center: { lat: 41.3851, lng: 2.1734 },
       zoom: 6,
-      styles: _darkMapStyle(),
-      disableDefaultUI: false,
+      mapId: 'annapp40_map',
       zoomControl: true,
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
     });
 
+    _initialized = true;
     _renderMarkers();
   }
 
-  function _renderMarkers() {
+  async function _renderMarkers() {
     if (!_map) return;
-    _markers.forEach(m => m.setMap(null));
+
+    // Netejar markers anteriors
+    _markers.forEach(m => { m.map = null; });
     _markers = [];
 
-    const withCoords = _photos.filter(p => p.lat && p.lng && p.tipus !== 'video');
-    const section    = document.getElementById('map-section');
-    const noCoords   = document.getElementById('map-no-coords');
+    const _parseCoord = (v) => {
+      const n = parseFloat(String(v || '').replace(',', '.'));
+      return isNaN(n) ? null : n;
+    };
 
+    const withCoords = _photos.filter(p => {
+      if (p.tipus === 'video') return false;
+      const lat = _parseCoord(p.lat);
+      const lng = _parseCoord(p.lng);
+      return lat !== null && lng !== null &&
+             lat >= -90 && lat <= 90 &&
+             lng >= -180 && lng <= 180 &&
+             !(lat === 0 && lng === 0);
+    });
+
+    const noCoords = document.getElementById('map-no-coords');
     if (withCoords.length === 0) {
-      if (section) section.classList.add('hidden');
+      if (noCoords) noCoords.classList.remove('hidden');
       return;
     }
-    if (section)  section.classList.remove('hidden');
     if (noCoords) noCoords.classList.add('hidden');
 
-    // Agrupar per coordenada arrodonida (cluster simple)
+    const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+
+    // Agrupar per coordenada
     const byLloc = {};
     withCoords.forEach(p => {
-      const key = `${p.lat.toFixed(3)},${p.lng.toFixed(3)}`;
-      if (!byLloc[key]) byLloc[key] = { lat: p.lat, lng: p.lng, lloc: p.lloc, photos: [] };
+      const lat = _parseCoord(p.lat);
+      const lng = _parseCoord(p.lng);
+      const key = `${lat.toFixed(3)},${lng.toFixed(3)}`;
+      if (!byLloc[key]) byLloc[key] = { lat, lng, lloc: p.lloc, photos: [] };
       byLloc[key].photos.push(p);
     });
 
     const bounds = new google.maps.LatLngBounds();
+
     Object.values(byLloc).forEach(group => {
-      const count = group.photos.length;
-      const marker = new google.maps.Marker({
+      const count    = group.photos.length;
+      const size     = count === 1 ? 30 : count < 5 ? 36 : 44;
+      const bg       = count === 1 ? '#0a84ff' : count < 5 ? '#5ac8fa' : '#ffd60a';
+      const color    = count < 5 ? '#fff' : '#000';
+
+      const pin = document.createElement('div');
+      pin.style.cssText = [
+        `width:${size}px`, `height:${size}px`,
+        `background:${bg}`, `color:${color}`,
+        'border-radius:50%', 'border:2px solid #fff',
+        'display:flex', 'align-items:center', 'justify-content:center',
+        `font-size:${count < 10 ? 13 : 11}px`, 'font-weight:700',
+        "font-family:-apple-system,sans-serif",
+        'box-shadow:0 2px 8px rgba(0,0,0,0.35)', 'cursor:pointer',
+      ].join(';');
+      pin.textContent = count > 1 ? String(count) : '📍';
+
+      const marker = new AdvancedMarkerElement({
         position: { lat: group.lat, lng: group.lng },
         map: _map,
         title: `${group.lloc} (${count})`,
-        icon: _clusterIcon(count),
+        content: pin,
       });
-      marker.addListener('click', () => {
-        if (group.photos.length === 1) Gallery.openLightbox(group.photos[0]);
-        else {
-          // Mostrar primera foto del grup, l'usuari pot navegar
-          Gallery.openLightbox(group.photos[0]);
-        }
-      });
+
+      marker.addListener('click', () => Gallery.openLightbox(group.photos[0]));
       _markers.push(marker);
       bounds.extend({ lat: group.lat, lng: group.lng });
     });
 
-    if (_markers.length > 0) _map.fitBounds(bounds, 80);
-    if (_markers.length === 1) _map.setZoom(Math.min(_map.getZoom(), 10));
-  }
-
-  function _clusterIcon(count) {
-    const size  = count === 1 ? 30 : count < 5 ? 36 : 44;
-    const color = count === 1 ? '#0a84ff' : count < 5 ? '#5ac8fa' : '#ffd60a';
-    const fontColor = count < 5 ? '#fff' : '#000';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
-      <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" fill="${color}" opacity="0.95" stroke="#fff" stroke-width="2"/>
-      <text x="${size/2}" y="${size/2+4}" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="${count < 10 ? 13 : 11}" font-weight="700" fill="${fontColor}">${count}</text>
-    </svg>`;
-    return {
-      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
-      scaledSize: new google.maps.Size(size, size),
-      anchor: new google.maps.Point(size/2, size/2),
-    };
-  }
-
-  function _darkMapStyle() {
-    return [
-      { elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
-      { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a1a' }] },
-      { elementType: 'labels.text.fill', stylers: [{ color: '#7a7a7a' }] },
-      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2c2c2c' }] },
-      { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#999' }] },
-      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1828' }] },
-      { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4a6478' }] },
-      { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-      { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-      { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#0a84ff' }] },
-    ];
+    if (_markers.length > 0) _map.fitBounds(bounds, 60);
+    if (_markers.length === 1) {
+      _map.setCenter({ lat: Object.values(byLloc)[0].lat, lng: Object.values(byLloc)[0].lng });
+      _map.setZoom(10);
+    }
   }
 
   return { init, updatePhotos };
