@@ -63,23 +63,7 @@ const App = (() => {
   let _adminCurrent  = null;
 
   async function initAdmin() {
-    // Event delegation al grid — un sol listener per a tots els items
-    const adminGrid = document.getElementById('admin-grid');
-    console.log('initAdmin: admin-grid trobat?', !!adminGrid);
-    adminGrid?.addEventListener('click', (e) => {
-      // Buscar el .admin-item que té data-idx
-      let el = e.target;
-      while (el && el !== adminGrid) {
-        if (el.dataset && el.dataset.idx !== undefined) {
-          const idx = parseInt(el.dataset.idx);
-          if (!isNaN(idx) && _adminFiltered[idx]) {
-            openAdminModal(_adminFiltered[idx]);
-          }
-          return;
-        }
-        el = el.parentElement;
-      }
-    });
+    // Click via onclick attribute (window._adminOpenModal)
     document.getElementById('btn-admin-reload')?.addEventListener('click', loadAdmin);
     document.getElementById('admin-modal-close')?.addEventListener('click', closeAdminModal);
     document.getElementById('admin-modal-overlay')?.addEventListener('click', (e) => {
@@ -176,6 +160,8 @@ const App = (() => {
       grid.appendChild(div);
     });
   }
+
+  window._adminOpenModal = function(idx) { openAdminModal(_adminFiltered[idx]); };
 
   function openAdminModal(photo) {
     try {
