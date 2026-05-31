@@ -64,12 +64,19 @@ const App = (() => {
 
   async function initAdmin() {
     // Event delegation al grid — un sol listener per a tots els items
-    document.getElementById('admin-grid')?.addEventListener('click', (e) => {
+    const adminGrid = document.getElementById('admin-grid');
+    console.log('initAdmin: admin-grid trobat?', !!adminGrid);
+    adminGrid?.addEventListener('click', (e) => {
+      console.log('CLICK al admin-grid', e.target);
       const item = e.target.closest('.admin-item');
+      console.log('Item trobat?', !!item, item?.dataset?.idx);
       if (!item) return;
       const idx = parseInt(item.dataset.idx);
+      console.log('idx:', idx, 'foto:', _adminFiltered[idx]);
       if (!isNaN(idx) && _adminFiltered[idx]) {
         openAdminModal(_adminFiltered[idx]);
+      } else {
+        UI.showToast('No trobo la foto (idx ' + idx + ')', 'error');
       }
     });
     document.getElementById('btn-admin-reload')?.addEventListener('click', loadAdmin);
