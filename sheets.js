@@ -53,5 +53,72 @@ const Sheets = (() => {
     });
   }
 
-  return { readAll };
+  async function updateRowByFileId(fileId, data) {
+    const range    = `'${CONFIG.SHEET_NAME}'!A:O`;
+    const endpoint = `${BASE}/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
+    const res  = await fetch(endpoint, { headers: _headers() });
+    if (!res.ok) throw new Error('Error llegint Sheets');
+    const json = await res.json();
+    const rows = json.values || [];
+    let rowIndex = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][1] === fileId) { rowIndex = i + 1; break; }
+    }
+    if (rowIndex === -1) throw new Error('Fila no trobada');
+
+    const put = async (range, values) => {
+      const ep = `${BASE}/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=RAW`;
+      await fetch(ep, { method: 'PUT', headers: _headers(), body: JSON.stringify({ values }) });
+    };
+
+    await put(`'${CONFIG.SHEET_NAME}'!D${rowIndex}:H${rowIndex}`, [[
+      data.any || '', data.lloc || '',
+      Array.isArray(data.persones)  ? data.persones.join(', ')  : '',
+      Array.isArray(data.categoria) ? data.categoria.join(', ') : '',
+      data.notes || '',
+    ]]);
+
+    if (data.lat !== undefined) {
+      await put(`'${CONFIG.SHEET_NAME}'!L${rowIndex}:M${rowIndex}`, [[data.lat || '', data.lng || '']]);
+    }
+    if (data.preferida !== undefined) {
+      await put(`'${CONFIG.SHEET_NAME}'!O${rowIndex}`, [[data.preferida ? 'true' : 'false']]);
+    }
+  }
+
+  async function deleteRowByFileId(fileId) {
+    const range    = `'${CONFIG.SHEET_NAME}'!A:O`;
+    const endpoint = `${BASE}/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
+    const res  = await fetch(endpoint, { headers: _headers() });
+    if (!res.ok) throw new Error('Error llegint Sheets');
+    const data = await res.json();
+    const rows = data.values || [];
+    let rowIndex = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][1] === fileId) { rowIndex = i; break; }
+    }
+    if (rowIndex === -1) throw new Error('Fila no trobada');
+
+    const metaRes = await fetch(`${BASE}/${CONFIG.SPREADSHEET_ID}`, { headers: _headers() });
+    const meta    = await metaRes.json();
+    const sheet   = meta.sheets.find(s => s.properties.title === CONFIG.SHEET_NAME);
+    const sheetId = sheet.properties.sheetId;
+
+    await fetch(`${BASE}/${CONFIG.SPREADSHEET_ID}:batchUpdate`, {
+      method: 'POST', headers: _headers(),
+      body: JSON.stringify({ requests: [{ deleteDimension: {
+        range: { sheetId, dimension: 'ROWS', startIndex: rowIndex, endIndex: rowIndex + 1 }
+      }}]})
+    });
+  }
+
+  async function deleteFile(fileId) {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
+    });
+    if (!res.ok && res.status !== 204) throw new Error('Error eliminant fitxer: ' + res.status);
+  }
+
+  return { readAll, updateRowByFileId, deleteRowByFileId, deleteFile };
 })();

@@ -115,9 +115,24 @@
 
     <!-- ADMIN -->
     <div id="panel-admin" class="tab-panel hidden">
-      <div style="padding:2rem 1rem;text-align:center;color:var(--text-muted)">
-        Funcionalitat admin: gestionar fotos des de l'app de col·laboració.
+      <div class="admin-toolbar">
+        <div>
+          <span class="admin-title">Gestió de fotos</span>
+          <span id="admin-count" class="admin-count"></span>
+        </div>
+        <button id="btn-admin-reload" class="btn-admin-reload">↻</button>
       </div>
+      <div id="admin-filters" class="admin-filters">
+        <select id="admin-filter-persona" class="filter-select">
+          <option value="">👤 Totes les persones</option>
+        </select>
+        <select id="admin-filter-qui" class="filter-select">
+          <option value="">📤 Tots els col·laboradors</option>
+        </select>
+      </div>
+      <div id="admin-loading" class="meves-loading">Carregant...</div>
+      <div id="admin-empty" class="meves-empty hidden">Cap foto trobada.</div>
+      <div id="admin-grid" class="admin-grid"></div>
     </div>
   </div>
 
@@ -144,6 +159,63 @@
         <div id="lightbox-cats" class="lightbox-cats"></div>
         <p id="lightbox-notes" class="lightbox-notes"></p>
         <p id="lightbox-pujat" class="lightbox-pujat"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ADMIN -->
+  <div id="admin-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <button id="admin-modal-close" class="modal-close-btn">✕</button>
+      <div class="modal-photo-preview">
+        <img id="admin-modal-img" src="" alt="" />
+        <div id="admin-modal-video" class="modal-video-preview" style="display:none">🎬<small>Vídeo</small></div>
+      </div>
+      <div class="modal-body">
+        <div id="admin-modal-author" style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)"></div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Any</label>
+            <select id="admin-modal-any" class="form-input"><option value="">Any...</option></select>
+          </div>
+          <div class="form-field" id="admin-lloc-group">
+            <label class="form-label">Lloc</label>
+            <input type="text" id="admin-modal-lloc" class="form-input" autocomplete="off" />
+            <input type="hidden" id="admin-modal-lat" />
+            <input type="hidden" id="admin-modal-lng" />
+            <div id="admin-places-dropdown" class="places-dropdown hidden"></div>
+          </div>
+        </div>
+
+        <div class="form-field" id="admin-cat-group">
+          <label class="form-label">Categoria</label>
+          <div class="chips-wrap" id="admin-modal-chips-categoria"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Persones</label>
+          <div class="chips-wrap" id="admin-modal-chips-persones"></div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <input type="text" id="admin-modal-input-persona" class="form-input small" placeholder="Afegir persona..." />
+            <button id="admin-modal-add-persona" class="btn-secondary">+ Afegir</button>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Notes</label>
+          <textarea id="admin-modal-notes" class="form-input" rows="3"></textarea>
+        </div>
+
+        <div class="form-field" id="admin-preferida-group">
+          <button id="admin-modal-preferida" class="btn-preferida" type="button">☆ Marcar com a preferida</button>
+        </div>
+
+        <div class="modal-actions">
+          <button id="admin-modal-delete" class="btn-danger">🗑️ Eliminar</button>
+          <button id="admin-modal-save" class="btn-upload-main" style="flex:1;margin:0">Guardar canvis</button>
+        </div>
       </div>
     </div>
   </div>
