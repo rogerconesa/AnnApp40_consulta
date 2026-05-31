@@ -392,5 +392,5 @@ Si no en trobes: {"ids": []}`;
     if (idx < _filteredPhotos.length - 1) openLightbox(_filteredPhotos[idx + 1]);
   }
 
-  return { init, updatePhotos, apply, openLightbox, closeLightbox };
+  return { init, updatePhotos, apply, openLightbox, closeLightbox, getFiltered: () => _filteredPhotos, getAllPhotos: () => _allPhotos };
 })();

@@ -113,19 +113,17 @@ const MapView = (() => {
         content: pin,
       });
 
-      // InfoWindow amb coordenades
+      // Popup personalitzat amb miniatura
       const infoWindow = new google.maps.InfoWindow({
-        content: `<div style="font-family:sans-serif;font-size:13px;line-height:1.5">
-          <strong>${group.lloc}</strong><br>
-          lat: ${group.lat.toFixed(5)}<br>
-          lng: ${group.lng.toFixed(5)}<br>
-          <small>${count} foto${count !== 1 ? 's' : ''}</small>
-        </div>`,
+        content: _buildPopup(group),
+        pixelOffset: new google.maps.Size(0, -10),
       });
 
+      let _openInfo = null;
       marker.addListener('click', () => {
+        if (_openInfo) _openInfo.close();
+        _openInfo = infoWindow;
         infoWindow.open({ map: _map, anchor: marker });
-        setTimeout(() => Gallery.openLightbox(group.photos[0]), 1200);
       });
       _markers.push(marker);
       bounds.extend({ lat: group.lat, lng: group.lng });
@@ -137,6 +135,37 @@ const MapView = (() => {
       _map.setZoom(10);
     }
   }
+
+  function _buildPopup(group) {
+    const photo = group.photos[0];
+    const more  = group.photos.length > 1 ? `<div style="font-size:11px;color:#666;margin-top:4px">+${group.photos.length - 1} foto${group.photos.length > 2 ? 's' : ''} més</div>` : '';
+    const thumb = photo.url ? `<img src="${photo.url}" style="width:160px;height:120px;object-fit:cover;border-radius:8px;display:block;cursor:pointer" id="map-popup-img" />` : `<div style="width:160px;height:120px;background:#eee;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2rem">🖼️</div>`;
+
+    const html = `
+      <div style="font-family:-apple-system,sans-serif;padding:2px;min-width:160px">
+        <div id="map-popup-thumb" style="cursor:pointer">${thumb}</div>
+        <div style="margin-top:8px">
+          <div style="font-weight:600;font-size:13px;color:#111">${group.lloc}</div>
+          <div style="font-size:12px;color:#888;margin-top:1px">${photo.any || ''}${photo.any && group.photos.length > 1 ? ' · ' : ''}${group.photos.length > 1 ? group.photos.length + ' fotos' : ''}</div>
+          ${more}
+        </div>
+      </div>`;
+    return html;
+  }
+
+  // Listener global per al clic al popup (delegació d'events)
+  document.addEventListener('click', (e) => {
+    if (e.target.id === 'map-popup-img' || e.target.id === 'map-popup-thumb' || e.target.closest('#map-popup-thumb')) {
+      // Trobar el grup corresponent i obrir lightbox
+      const img = e.target.closest('#map-popup-thumb')?.querySelector('img');
+      if (!img) return;
+      const src = img.src;
+      // Buscar la foto per URL
+      const allPhotos = Gallery.getFiltered ? Gallery.getFiltered() : [];
+      const photo = allPhotos.find(p => p.url === src);
+      if (photo) Gallery.openLightbox(photo);
+    }
+  });
 
   return { init, updatePhotos };
 })();
