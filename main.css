@@ -1201,3 +1201,21 @@ body {
   .admin-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0.75rem; }
   .admin-filters { flex-direction: column; }
 }
+
+/* ── Admin panel scroll fix ─────────────────── */
+#panel-admin {
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 0;
+  flex: 1;
+}
+
+.admin-grid {
+  overflow: visible;
+}
+
+/* Restore overlay hover on button */
+.admin-item button:hover .admin-item-overlay,
+button.admin-item:hover .admin-item-overlay {
+  opacity: 1;
+}

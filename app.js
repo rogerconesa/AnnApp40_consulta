@@ -153,10 +153,10 @@ const App = (() => {
       btn.type = 'button';
       btn.className = 'admin-item' + (isVideo ? ' admin-video' : '');
       btn.style.cssText = 'all:unset;cursor:pointer;display:block;width:100%;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);box-sizing:border-box';
-      btn.innerHTML = isVideo
-        ? `<div style="aspect-ratio:1;background:linear-gradient(135deg,#1a1a2e,#0a0a1a);display:flex;align-items:center;justify-content:center;font-size:2rem">🎬</div>`
-        : `<img src="${photo.url}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block" loading="lazy" />`;
-      btn.innerHTML += `
+      const thumbHtml = isVideo
+        ? `<div style="aspect-ratio:1;background:linear-gradient(135deg,#1a1a2e,#0a0a1a);display:flex;align-items:center;justify-content:center;font-size:2rem;position:relative">🎬<div class="admin-item-overlay">✏️ Editar</div></div>`
+        : `<div style="position:relative"><img src="${photo.url}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block" loading="lazy" /><div class="admin-item-overlay">✏️ Editar</div></div>`;
+      btn.innerHTML = thumbHtml + `
         ${photo.preferida ? '<div class="admin-item-star">⭐</div>' : ''}
         <div style="padding:7px 9px 8px">
           <div style="font-size:0.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${photo.lloc || (isVideo ? 'Vídeo' : '—')}</div>
@@ -173,6 +173,8 @@ const App = (() => {
   }
 
   function openAdminModal(photo) {
+    // DIAGNOSTIC: verificar que la funció s'arriba a cridar
+    UI.showToast('Obrint: ' + (photo?.lloc || photo?.fileId || '?'), '');
     try {
     _adminCurrent = photo;
     const isVideo = photo.tipus === 'video';
