@@ -103,14 +103,30 @@ const MapView = (() => {
       ].join(';');
       pin.textContent = count > 1 ? String(count) : '📍';
 
+      // Log per depurar
+      console.log(`📍 Marker: ${group.lloc} → lat:${group.lat}, lng:${group.lng}`);
+
       const marker = new AdvancedMarkerElement({
         position: { lat: group.lat, lng: group.lng },
         map: _map,
-        title: `${group.lloc} (${count})`,
+        title: `${group.lloc}: lat=${group.lat.toFixed(4)}, lng=${group.lng.toFixed(4)}`,
         content: pin,
       });
 
-      marker.addListener('click', () => Gallery.openLightbox(group.photos[0]));
+      // InfoWindow amb coordenades
+      const infoWindow = new google.maps.InfoWindow({
+        content: `<div style="font-family:sans-serif;font-size:13px;line-height:1.5">
+          <strong>${group.lloc}</strong><br>
+          lat: ${group.lat.toFixed(5)}<br>
+          lng: ${group.lng.toFixed(5)}<br>
+          <small>${count} foto${count !== 1 ? 's' : ''}</small>
+        </div>`,
+      });
+
+      marker.addListener('click', () => {
+        infoWindow.open({ map: _map, anchor: marker });
+        setTimeout(() => Gallery.openLightbox(group.photos[0]), 1200);
+      });
       _markers.push(marker);
       bounds.extend({ lat: group.lat, lng: group.lng });
     });
