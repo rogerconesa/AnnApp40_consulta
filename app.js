@@ -59,11 +59,10 @@ const App = (() => {
   // ADMIN PANEL
   // ══════════════════════════════════════════
   let _adminPhotos   = [];
-  let _adminFiltered = [];
   let _adminCurrent  = null;
 
   async function initAdmin() {
-    // Click via onclick attribute (window._adminOpenModal)
+
     document.getElementById('btn-admin-reload')?.addEventListener('click', loadAdmin);
     document.getElementById('admin-modal-close')?.addEventListener('click', closeAdminModal);
     document.getElementById('admin-modal-overlay')?.addEventListener('click', (e) => {
@@ -141,27 +140,37 @@ const App = (() => {
     if (filtered.length === 0) { empty.classList.remove('hidden'); return; }
     empty.classList.add('hidden');
 
+    // Mapa global: fid → photo
+    window.__ap = {};
+    filtered.forEach(photo => { window.__ap[photo.fileId] = photo; });
+
     filtered.forEach(photo => {
       const isVideo = photo.tipus === 'video';
-      const div = document.createElement('div');
-      div.className = 'admin-item' + (isVideo ? ' admin-video' : '');
-      div.innerHTML = `
-        ${isVideo
-          ? '<div class="admin-video-thumb">🎬</div>'
-          : `<img class="admin-item-img" src="${photo.url}" alt="" loading="lazy" />`}
+      const fid = photo.fileId;
+
+      // Fer servir <button> que sempre rep clicks nativament
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'admin-item' + (isVideo ? ' admin-video' : '');
+      btn.style.cssText = 'all:unset;cursor:pointer;display:block;width:100%;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);box-sizing:border-box';
+      btn.innerHTML = isVideo
+        ? `<div style="aspect-ratio:1;background:linear-gradient(135deg,#1a1a2e,#0a0a1a);display:flex;align-items:center;justify-content:center;font-size:2rem">🎬</div>`
+        : `<img src="${photo.url}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block" loading="lazy" />`;
+      btn.innerHTML += `
         ${photo.preferida ? '<div class="admin-item-star">⭐</div>' : ''}
-        <div class="admin-item-overlay">✏️ Editar</div>
-        <div class="admin-item-info">
-          <div class="admin-item-lloc">${photo.lloc || (isVideo ? 'Vídeo' : '—')}</div>
-          <div class="admin-item-meta">${photo.any || ''} · ${photo.pujatNom || ''}</div>
-        </div>
-      `;
-      div.addEventListener('click', () => openAdminModal(photo));
-      grid.appendChild(div);
+        <div style="padding:7px 9px 8px">
+          <div style="font-size:0.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${photo.lloc || (isVideo ? 'Vídeo' : '—')}</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);margin-top:1px">${photo.any || ''} · ${photo.pujatNom || ''}</div>
+        </div>`;
+
+      btn.onclick = () => {
+        const p = window.__ap[fid];
+        if (p) openAdminModal(p);
+        else alert('No trobo la foto: ' + fid);
+      };
+      grid.appendChild(btn);
     });
   }
-
-  window._adminOpenModal = function(idx) { openAdminModal(_adminFiltered[idx]); };
 
   function openAdminModal(photo) {
     try {
