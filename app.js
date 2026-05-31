@@ -67,16 +67,17 @@ const App = (() => {
     const adminGrid = document.getElementById('admin-grid');
     console.log('initAdmin: admin-grid trobat?', !!adminGrid);
     adminGrid?.addEventListener('click', (e) => {
-      console.log('CLICK al admin-grid', e.target);
-      const item = e.target.closest('.admin-item');
-      console.log('Item trobat?', !!item, item?.dataset?.idx);
-      if (!item) return;
-      const idx = parseInt(item.dataset.idx);
-      console.log('idx:', idx, 'foto:', _adminFiltered[idx]);
-      if (!isNaN(idx) && _adminFiltered[idx]) {
-        openAdminModal(_adminFiltered[idx]);
-      } else {
-        UI.showToast('No trobo la foto (idx ' + idx + ')', 'error');
+      // Buscar el .admin-item que té data-idx
+      let el = e.target;
+      while (el && el !== adminGrid) {
+        if (el.dataset && el.dataset.idx !== undefined) {
+          const idx = parseInt(el.dataset.idx);
+          if (!isNaN(idx) && _adminFiltered[idx]) {
+            openAdminModal(_adminFiltered[idx]);
+          }
+          return;
+        }
+        el = el.parentElement;
       }
     });
     document.getElementById('btn-admin-reload')?.addEventListener('click', loadAdmin);
