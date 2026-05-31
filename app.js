@@ -160,6 +160,7 @@ const App = (() => {
   }
 
   function openAdminModal(photo) {
+    try {
     _adminCurrent = photo;
     const isVideo = photo.tipus === 'video';
 
@@ -211,6 +212,10 @@ const App = (() => {
 
     document.getElementById('admin-modal-overlay').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+    } catch(err) {
+      console.error('openAdminModal error:', err);
+      UI.showToast('Error obrint editor: ' + err.message, 'error');
+    }
   }
 
   function closeAdminModal() {
