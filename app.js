@@ -59,9 +59,19 @@ const App = (() => {
   // ADMIN PANEL
   // ══════════════════════════════════════════
   let _adminPhotos   = [];
+  let _adminFiltered = [];
   let _adminCurrent  = null;
 
   async function initAdmin() {
+    // Event delegation al grid — un sol listener per a tots els items
+    document.getElementById('admin-grid')?.addEventListener('click', (e) => {
+      const item = e.target.closest('.admin-item');
+      if (!item) return;
+      const idx = parseInt(item.dataset.idx);
+      if (!isNaN(idx) && _adminFiltered[idx]) {
+        openAdminModal(_adminFiltered[idx]);
+      }
+    });
     document.getElementById('btn-admin-reload')?.addEventListener('click', loadAdmin);
     document.getElementById('admin-modal-close')?.addEventListener('click', closeAdminModal);
     document.getElementById('admin-modal-overlay')?.addEventListener('click', (e) => {
