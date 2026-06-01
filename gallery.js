@@ -292,19 +292,25 @@ Si no en trobes: {"ids": []}`;
 
     ordered.forEach(photo => {
       const isVideo = photo.tipus === 'video';
-      const div = document.createElement('div');
-      div.className = 'gallery-item';
-      div.innerHTML = `
-        ${isVideo ? `<div class="gallery-video-thumb">🎬</div>` : `<img src="${photo.url}" alt="${photo.lloc}" loading="lazy" />`}
-        ${photo.preferida ? '<div class="gallery-item-preferida">⭐</div>' : ''}
-        ${isVideo ? '<div class="gallery-item-video-badge">🎬 VÍDEO</div>' : ''}
-        <div class="gallery-overlay">
-          <div class="gallery-overlay-any">${photo.any || ''}</div>
-          <div class="gallery-overlay-lloc">${photo.lloc || (isVideo ? 'Vídeo' : '')}</div>
+      const fid = photo.fileId;
+      const card = document.createElement('div');
+      card.className = 'gallery-card' + (isVideo ? ' gallery-card-video' : '');
+      const thumb = isVideo
+        ? `<div class="gallery-card-thumb gallery-card-vid">🎬</div>`
+        : `<img class="gallery-card-thumb" src="${photo.url}" alt="${photo.lloc}" loading="lazy" />`;
+      card.innerHTML = `
+        <div class="gallery-card-imgwrap">
+          ${thumb}
+          ${photo.preferida ? '<div class="gallery-card-star">⭐</div>' : ''}
+          ${isVideo ? '<div class="gallery-card-vidbadge">🎬 VÍDEO</div>' : ''}
+        </div>
+        <div class="gallery-card-info">
+          <div class="gallery-card-lloc">${photo.lloc || (isVideo ? 'Vídeo de felicitació' : '—')}</div>
+          <div class="gallery-card-meta">${photo.any || ''}${photo.persones.length ? ' · ' + photo.persones.slice(0,2).join(', ') : ''}</div>
         </div>
       `;
-      div.addEventListener('click', () => openLightbox(photo));
-      grid.appendChild(div);
+      card.addEventListener('click', () => openLightbox(photo));
+      grid.appendChild(card);
     });
   }
 

@@ -163,18 +163,16 @@ const App = (() => {
           <div style="font-size:0.7rem;color:var(--text-muted);margin-top:1px">${photo.any || ''} · ${photo.pujatNom || ''}</div>
         </div>`;
 
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         const p = window.__ap[fid];
-        if (p) openAdminModal(p);
-        else alert('No trobo la foto: ' + fid);
+        if (p) setTimeout(() => openAdminModal(p), 0);
       };
       grid.appendChild(btn);
     });
   }
 
   function openAdminModal(photo) {
-    // DIAGNOSTIC: verificar que la funció s'arriba a cridar
-    UI.showToast('Obrint: ' + (photo?.lloc || photo?.fileId || '?'), '');
     try {
     _adminCurrent = photo;
     const isVideo = photo.tipus === 'video';

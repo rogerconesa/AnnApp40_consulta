@@ -42,8 +42,9 @@ body {
 }
 
 /* SCREENS */
-.screen { display: none; min-height: 100dvh; }
-.screen.active { display: flex; flex-direction: column; }
+.screen { display: none; }
+.screen.active { display: block; }
+#screen-app { min-height: 100dvh; }
 
 /* LOGIN */
 #screen-login {
@@ -204,7 +205,7 @@ body {
 .btn-logout:hover { color: var(--accent); background: var(--bg4); }
 
 /* PANELS */
-.tab-panel { flex: 1; display: flex; flex-direction: column; }
+.tab-panel { display: block; }
 
 /* ============================================
    FILTRES COMPACTES + XAT IA
@@ -732,8 +733,7 @@ body {
    GALERIA
    ============================================ */
 .gallery-scroll {
-  flex: 1;
-  overflow-y: auto;
+  display: block;
 }
 
 .gallery-section-title {
@@ -829,8 +829,9 @@ body {
    MAPA — pestanya separada
    ============================================ */
 #panel-mapa {
-  height: calc(100dvh - var(--header-h, 54px));
-  overflow: hidden;
+  height: calc(100dvh - 92px);
+  display: flex;
+  flex-direction: column;
 }
 
 .map-section-title {
@@ -853,7 +854,7 @@ body {
 }
 
 @media (max-width: 600px) {
-  #panel-mapa { height: calc(100dvh - 90px); }
+  #panel-mapa { height: calc(100dvh - 96px); }
 }
 
 /* ============================================
@@ -1202,20 +1203,104 @@ body {
   .admin-filters { flex-direction: column; }
 }
 
-/* ── Admin panel scroll fix ─────────────────── */
-#panel-admin {
-  overflow-y: auto !important;
-  height: auto !important;
-  min-height: 0;
-  flex: 1;
+/* ── Admin overlay hover ─────────────────── */
+button.admin-item { position: relative; }
+button.admin-item:hover .admin-item-overlay { opacity: 1; }
+
+/* ============================================
+   GALLERY CARDS (info sempre visible, com Admin)
+   ============================================ */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 1rem;
+  background: transparent;
 }
 
-.admin-grid {
-  overflow: visible;
+.gallery-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.gallery-card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: var(--shadow); }
+.gallery-card-video { border-color: rgba(245,158,11,0.3); }
+
+.gallery-card-imgwrap {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
 }
 
-/* Restore overlay hover on button */
-.admin-item button:hover .admin-item-overlay,
-button.admin-item:hover .admin-item-overlay {
-  opacity: 1;
+.gallery-card-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.gallery-card:hover .gallery-card-thumb { transform: scale(1.04); }
+
+.gallery-card-vid {
+  background: linear-gradient(135deg, #1a1a2e, #0a0a1a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+}
+
+.gallery-card-star {
+  position: absolute;
+  top: 6px; right: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.gallery-card-vidbadge {
+  position: absolute;
+  top: 6px; left: 6px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.gallery-card-info {
+  padding: 8px 10px 9px;
+}
+
+.gallery-card-lloc {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.gallery-card-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0.75rem; }
+}
+@media (max-width: 380px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
 }
