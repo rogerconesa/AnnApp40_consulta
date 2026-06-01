@@ -1304,3 +1304,53 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
 @media (max-width: 380px) {
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ============================================
+   ADMIN MODAL — override robust
+   ============================================ */
+#admin-modal-overlay:not(.hidden) {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  background: rgba(0,0,0,0.7) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+#admin-modal-overlay.hidden {
+  display: none !important;
+}
+
+#admin-modal-overlay .modal-sheet {
+  background: var(--modal-bg);
+  border-radius: 22px 22px 0 0;
+  width: 100%;
+  max-width: 620px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: var(--shadow-xl);
+}
+
+/* ============================================
+   ADMIN PANEL scroll — definitiu
+   ============================================ */
+#panel-admin:not(.hidden) {
+  display: block;
+}
+#panel-admin .admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 1rem 1rem 4rem;
+}
+@media (max-width: 600px) {
+  #panel-admin .admin-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 0.75rem 0.75rem 4rem;
+  }
+}

@@ -224,20 +224,14 @@ const App = (() => {
     prefBtn.textContent = photo.preferida ? '⭐ Foto preferida' : '☆ Marcar com a preferida';
 
     document.getElementById('admin-modal-overlay').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
     } catch(err) {
       console.error('openAdminModal error:', err);
-      UI.showToast('Error: ' + err.message + ' · ' + err.stack?.split('\n')[1], 'error');
-      // Comprovació elements clau
-      const missing = ['admin-modal-overlay','admin-modal-img','admin-modal-any','admin-modal-lloc']
-        .filter(id => !document.getElementById(id));
-      if (missing.length) UI.showToast('Elements no trobats: ' + missing.join(', '), 'error');
+      UI.showToast('Error obrint editor: ' + err.message, 'error');
     }
   }
 
   function closeAdminModal() {
     document.getElementById('admin-modal-overlay').classList.add('hidden');
-    document.body.style.overflow = '';
     _adminCurrent = null;
   }
 
