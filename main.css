@@ -1354,3 +1354,239 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
     padding: 0.75rem 0.75rem 4rem;
   }
 }
+
+/* ============================================
+   VIEW TOGGLE
+   ============================================ */
+.gallery-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.view-toggle-btn {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  width: 32px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.view-toggle-btn.active { background: var(--accent); color: #fff; }
+
+/* ============================================
+   CARRUSSEL PER CATEGORIA
+   ============================================ */
+.carousel-section {
+  margin-bottom: 1.5rem;
+}
+
+.carousel-cat-title {
+  padding: 0 1rem 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.carousel-cat-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-radius: 99px;
+  padding: 2px 9px;
+}
+
+.carousel-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 1rem 0.5rem;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.carousel-scroll::-webkit-scrollbar { height: 5px; }
+.carousel-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+.carousel-card {
+  flex-shrink: 0;
+  width: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.carousel-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--accent); }
+
+.carousel-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel-card-star {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem;
+}
+
+.carousel-card-cap {
+  padding: 8px 11px 10px;
+}
+.carousel-card-lloc {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.carousel-card-any {
+  font-size: 0.72rem;
+  color: var(--accent);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* ============================================
+   LIGHTBOX EDIT BUTTON
+   ============================================ */
+.lightbox-edit {
+  position: fixed;
+  top: 1rem; right: 4.5rem;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox-edit:hover { background: var(--accent); border-color: var(--accent); }
+
+/* ============================================
+   VÍDEOS — carrussel
+   ============================================ */
+#panel-videos {
+  padding-bottom: 3rem;
+}
+
+.videos-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 1rem 1rem 0.75rem;
+}
+.videos-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.videos-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.videos-carousel {
+  overflow: hidden;
+  padding: 0 1rem;
+}
+
+.videos-track {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.video-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  padding: 0 4px;
+}
+
+.video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.video-info {
+  padding: 0.85rem 0.25rem 0;
+  text-align: center;
+}
+.video-info-author {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.video-info-cat {
+  font-size: 0.8rem;
+  color: var(--accent);
+  margin-top: 2px;
+}
+.video-info-notes {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.videos-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+.videos-nav-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 0.55rem 1.1rem;
+  transition: var(--transition);
+}
+.videos-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.videos-counter {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  min-width: 50px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .carousel-card { width: 150px; }
+  .carousel-card img { height: 150px; }
+}

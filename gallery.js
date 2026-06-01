@@ -268,8 +268,74 @@ Si no en trobes: {"ids": []}`;
     });
 
     _renderGallery();
+    _renderCarousels();
     _renderPreferides();
     if (typeof MapView !== 'undefined') MapView.updatePhotos(_filteredPhotos);
+  }
+
+  // ── Vista (graella / carrussel) ──────────────
+  let _viewMode = 'grid';
+
+  function setView(mode) {
+    _viewMode = mode;
+    document.getElementById('view-grid')?.classList.toggle('active', mode === 'grid');
+    document.getElementById('view-carousel')?.classList.toggle('active', mode === 'carousel');
+    document.getElementById('view-grid-container')?.classList.toggle('hidden', mode !== 'grid');
+    document.getElementById('view-carousel-container')?.classList.toggle('hidden', mode !== 'carousel');
+    if (mode === 'carousel') _renderCarousels();
+  }
+
+  // ── Carrussels per categoria ─────────────────
+  function _renderCarousels() {
+    const wrap = document.getElementById('carousels-wrap');
+    if (!wrap) return;
+    if (_viewMode !== 'carousel') return;
+
+    wrap.innerHTML = '';
+
+    // Només fotos (no vídeos)
+    const fotos = _filteredPhotos.filter(p => p.tipus !== 'video');
+
+    // Agrupar per categoria
+    const byCat = {};
+    fotos.forEach(p => {
+      const cats = p.categoria.length ? p.categoria : ['Sense categoria'];
+      cats.forEach(cat => {
+        if (!byCat[cat]) byCat[cat] = [];
+        byCat[cat].push(p);
+      });
+    });
+
+    const cats = Object.keys(byCat).sort();
+    if (cats.length === 0) {
+      wrap.innerHTML = '<div class="gallery-empty">Cap foto per mostrar.</div>';
+      return;
+    }
+
+    cats.forEach(cat => {
+      const section = document.createElement('div');
+      section.className = 'carousel-section';
+      section.innerHTML = `
+        <div class="carousel-cat-title">${cat} <span class="carousel-cat-count">${byCat[cat].length}</span></div>
+        <div class="carousel-scroll"></div>
+      `;
+      const scroll = section.querySelector('.carousel-scroll');
+      byCat[cat].forEach(photo => {
+        const card = document.createElement('div');
+        card.className = 'carousel-card';
+        card.innerHTML = `
+          <img src="${photo.url}" alt="${photo.lloc}" loading="lazy" />
+          ${photo.preferida ? '<div class="carousel-card-star">⭐</div>' : ''}
+          <div class="carousel-card-cap">
+            <div class="carousel-card-lloc">${photo.lloc || ''}</div>
+            <div class="carousel-card-any">${photo.any || ''}</div>
+          </div>
+        `;
+        card.addEventListener('click', () => openLightbox(photo));
+        scroll.appendChild(card);
+      });
+      wrap.appendChild(section);
+    });
   }
 
   // ── Render galeria ───────────────────────────
@@ -398,5 +464,5 @@ Si no en trobes: {"ids": []}`;
     if (idx < _filteredPhotos.length - 1) openLightbox(_filteredPhotos[idx + 1]);
   }
 
-  return { init, updatePhotos, apply, openLightbox, closeLightbox, getFiltered: () => _filteredPhotos, getAllPhotos: () => _allPhotos };
+  return { init, updatePhotos, apply, openLightbox, closeLightbox, setView, getFiltered: () => _filteredPhotos, getAllPhotos: () => _allPhotos, getCurrentLightboxPhoto: () => _lightboxPhoto };
 })();

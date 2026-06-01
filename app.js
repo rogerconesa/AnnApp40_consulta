@@ -48,22 +48,29 @@ const App = (() => {
           MapView.init();
           MapView.updatePhotos(_photos);
         }
-        if (tab.dataset.tab === 'admin') {
-          loadAdmin();
+        if (tab.dataset.tab === 'videos') {
+          renderVideos();
         }
       });
+    });
+
+    // View toggle (graella / carrussel)
+    document.getElementById('view-grid')?.addEventListener('click', () => Gallery.setView('grid'));
+    document.getElementById('view-carousel')?.addEventListener('click', () => Gallery.setView('carousel'));
+
+    // Botó editar del lightbox
+    document.getElementById('lightbox-edit')?.addEventListener('click', () => {
+      const photo = Gallery.getCurrentLightboxPhoto();
+      if (photo) { Gallery.closeLightbox(); setTimeout(() => openAdminModal(photo), 100); }
     });
   }
 
   // ══════════════════════════════════════════
-  // ADMIN PANEL
+  // EDITOR DE FOTOS (modal reutilitzat)
   // ══════════════════════════════════════════
-  let _adminPhotos   = [];
   let _adminCurrent  = null;
 
-  async function initAdmin() {
-
-    document.getElementById('btn-admin-reload')?.addEventListener('click', loadAdmin);
+  function initAdmin() {
     document.getElementById('admin-modal-close')?.addEventListener('click', closeAdminModal);
     document.getElementById('admin-modal-overlay')?.addEventListener('click', (e) => {
       if (e.target === document.getElementById('admin-modal-overlay')) closeAdminModal();
@@ -84,92 +91,69 @@ const App = (() => {
       this.classList.toggle('active');
       this.textContent = this.classList.contains('active') ? '⭐ Foto preferida' : '☆ Marcar com a preferida';
     });
-    document.getElementById('admin-filter-persona')?.addEventListener('change', renderAdminGrid);
-    document.getElementById('admin-filter-qui')?.addEventListener('change', renderAdminGrid);
   }
 
-  async function loadAdmin() {
-    const grid = document.getElementById('admin-grid');
-    const loading = document.getElementById('admin-loading');
-    const empty   = document.getElementById('admin-empty');
-    grid.innerHTML = '';
-    loading.classList.remove('hidden');
+  // ══════════════════════════════════════════
+  // VÍDEOS — carrussel autoplay
+  // ══════════════════════════════════════════
+  let _videoIdx = 0;
+
+  function renderVideos() {
+    const carousel = document.getElementById('videos-carousel');
+    const empty    = document.getElementById('videos-empty');
+    const count    = document.getElementById('videos-count');
+
+    const videos = _photos.filter(p => p.tipus === 'video');
+    carousel.innerHTML = '';
+    count.textContent = `${videos.length} vídeo${videos.length !== 1 ? 's' : ''}`;
+
+    if (videos.length === 0) { empty.classList.remove('hidden'); return; }
     empty.classList.add('hidden');
 
-    try {
-      _adminPhotos = await Sheets.readAll();
-      loading.classList.add('hidden');
+    _videoIdx = 0;
 
-      // Omplir filtres
-      const persones = [...new Set(_adminPhotos.flatMap(p => p.persones))].filter(Boolean).sort();
-      const autors   = [...new Set(_adminPhotos.map(p => p.pujatNom).filter(Boolean))].sort();
-      const filtPers = document.getElementById('admin-filter-persona');
-      const filtQui  = document.getElementById('admin-filter-qui');
-      const prevPers = filtPers.value;
-      const prevQui  = filtQui.value;
+    const track = document.createElement('div');
+    track.className = 'videos-track';
+    track.id = 'videos-track';
 
-      filtPers.innerHTML = '<option value="">👤 Totes les persones</option>';
-      persones.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; if(p===prevPers) o.selected=true; filtPers.appendChild(o); });
-
-      filtQui.innerHTML = '<option value="">📤 Tots els col·laboradors</option>';
-      autors.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; if(a===prevQui) o.selected=true; filtQui.appendChild(o); });
-
-      renderAdminGrid();
-    } catch(err) {
-      loading.classList.add('hidden');
-      UI.showToast('Error: ' + err.message, 'error');
-    }
-  }
-
-  function renderAdminGrid() {
-    const grid    = document.getElementById('admin-grid');
-    const empty   = document.getElementById('admin-empty');
-    const count   = document.getElementById('admin-count');
-    const filtPers = document.getElementById('admin-filter-persona').value;
-    const filtQui  = document.getElementById('admin-filter-qui').value;
-
-    const filtered = _adminPhotos.filter(p => {
-      if (filtPers && !p.persones.includes(filtPers)) return false;
-      if (filtQui  && p.pujatNom !== filtQui) return false;
-      return true;
+    videos.forEach((video, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'video-slide';
+      slide.innerHTML = `
+        <div class="video-frame">
+          <iframe src="https://drive.google.com/file/d/${video.fileId}/preview"
+            allow="autoplay" allowfullscreen
+            style="width:100%;height:100%;border:0;border-radius:12px"></iframe>
+        </div>
+        <div class="video-info">
+          <div class="video-info-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
+          ${video.categoria.length ? `<div class="video-info-cat">${video.categoria.join(' · ')}</div>` : ''}
+          ${video.notes ? `<div class="video-info-notes">"${video.notes}"</div>` : ''}
+        </div>
+      `;
+      track.appendChild(slide);
     });
 
-    grid.innerHTML = '';
-    count.textContent = `${filtered.length} element${filtered.length !== 1 ? 's' : ''}`;
+    carousel.appendChild(track);
 
-    if (filtered.length === 0) { empty.classList.remove('hidden'); return; }
-    empty.classList.add('hidden');
+    // Controls
+    if (videos.length > 1) {
+      const nav = document.createElement('div');
+      nav.className = 'videos-nav';
+      nav.innerHTML = `
+        <button id="video-prev" class="videos-nav-btn">‹ Anterior</button>
+        <span id="video-counter" class="videos-counter">1 / ${videos.length}</span>
+        <button id="video-next" class="videos-nav-btn">Següent ›</button>
+      `;
+      carousel.appendChild(nav);
 
-    // Mapa global: fid → photo
-    window.__ap = {};
-    filtered.forEach(photo => { window.__ap[photo.fileId] = photo; });
-
-    filtered.forEach(photo => {
-      const isVideo = photo.tipus === 'video';
-      const fid = photo.fileId;
-
-      // Fer servir <button> que sempre rep clicks nativament
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'admin-item' + (isVideo ? ' admin-video' : '');
-      btn.style.cssText = 'all:unset;cursor:pointer;display:block;width:100%;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg2);border:1px solid var(--border);box-sizing:border-box';
-      const thumbHtml = isVideo
-        ? `<div style="aspect-ratio:1;background:linear-gradient(135deg,#1a1a2e,#0a0a1a);display:flex;align-items:center;justify-content:center;font-size:2rem;position:relative">🎬<div class="admin-item-overlay">✏️ Editar</div></div>`
-        : `<div style="position:relative"><img src="${photo.url}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block" loading="lazy" /><div class="admin-item-overlay">✏️ Editar</div></div>`;
-      btn.innerHTML = thumbHtml + `
-        ${photo.preferida ? '<div class="admin-item-star">⭐</div>' : ''}
-        <div style="padding:7px 9px 8px">
-          <div style="font-size:0.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${photo.lloc || (isVideo ? 'Vídeo' : '—')}</div>
-          <div style="font-size:0.7rem;color:var(--text-muted);margin-top:1px">${photo.any || ''} · ${photo.pujatNom || ''}</div>
-        </div>`;
-
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        const p = window.__ap[fid];
-        if (p) setTimeout(() => openAdminModal(p), 0);
+      const update = () => {
+        track.style.transform = `translateX(-${_videoIdx * 100}%)`;
+        document.getElementById('video-counter').textContent = `${_videoIdx + 1} / ${videos.length}`;
       };
-      grid.appendChild(btn);
-    });
+      document.getElementById('video-prev').onclick = () => { if (_videoIdx > 0) { _videoIdx--; update(); } };
+      document.getElementById('video-next').onclick = () => { if (_videoIdx < videos.length - 1) { _videoIdx++; update(); } };
+    }
   }
 
   function openAdminModal(photo) {
@@ -268,8 +252,6 @@ const App = (() => {
       });
       UI.showToast('Canvis guardats!', 'success');
       closeAdminModal();
-      loadAdmin();
-      // Recarregar galeria
       _photos = await Sheets.readAll();
       Gallery.updatePhotos(_photos);
     } catch(err) {
@@ -287,7 +269,6 @@ const App = (() => {
       await Sheets.deleteRowByFileId(_adminCurrent.fileId);
       UI.showToast('Eliminat correctament', 'success');
       closeAdminModal();
-      loadAdmin();
       _photos = await Sheets.readAll();
       Gallery.updatePhotos(_photos);
     } catch(err) {

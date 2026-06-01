@@ -30,9 +30,9 @@
     <header class="app-header">
       <div class="header-logo">Anna<span class="logo-40">40</span></div>
       <nav class="header-nav">
-        <button class="nav-tab active" data-tab="galeria">📸 Records</button>
+        <button class="nav-tab active" data-tab="galeria">📸 Fotos</button>
+        <button class="nav-tab" data-tab="videos">🎬 Vídeos</button>
         <button class="nav-tab" data-tab="mapa">🗺️ Mapa</button>
-        <button class="nav-tab" id="tab-btn-admin" data-tab="admin" style="display:none">⚙️ Admin</button>
       </nav>
       <div class="header-user">
         <img id="user-avatar" src="" alt="" class="avatar" />
@@ -87,6 +87,10 @@
 
       <div class="gallery-meta">
         <span id="gallery-count"></span>
+        <div class="view-toggle">
+          <button id="view-grid" class="view-toggle-btn active" title="Graella">▦</button>
+          <button id="view-carousel" class="view-toggle-btn" title="Carrussel per categories">▭</button>
+        </div>
       </div>
 
       <!-- Scroll de tot el contingut -->
@@ -98,10 +102,16 @@
           <div id="preferides-scroll" class="preferides-scroll"></div>
         </div>
 
-        <!-- Galeria -->
-        <div class="gallery-section-title">🖼️ Totes les fotos</div>
-        <div id="gallery-grid" class="gallery-grid"></div>
-        <div id="gallery-empty" class="gallery-empty hidden">Cap foto trobada amb aquests filtres.</div>
+        <!-- Vista graella -->
+        <div id="view-grid-container">
+          <div id="gallery-grid" class="gallery-grid"></div>
+          <div id="gallery-empty" class="gallery-empty hidden">Cap foto trobada amb aquests filtres.</div>
+        </div>
+
+        <!-- Vista carrussel per categories -->
+        <div id="view-carousel-container" class="hidden">
+          <div id="carousels-wrap"></div>
+        </div>
 
       </div>
     </div>
@@ -113,32 +123,26 @@
       <div id="map-no-coords" class="map-no-coords hidden">Cap foto té ubicació registrada encara.</div>
     </div>
 
-    <!-- ADMIN -->
-    <div id="panel-admin" class="tab-panel hidden">
-      <div class="admin-toolbar">
-        <div>
-          <span class="admin-title">Gestió de fotos</span>
-          <span id="admin-count" class="admin-count"></span>
-        </div>
-        <button id="btn-admin-reload" class="btn-admin-reload">↻</button>
+
+    </div>
+  </div>
+
+  <!-- VÍDEOS -->
+    <div id="panel-videos" class="tab-panel hidden">
+      <div class="videos-header">
+        <span class="videos-title">🎬 Vídeos de felicitació</span>
+        <span id="videos-count" class="videos-count"></span>
       </div>
-      <div id="admin-filters" class="admin-filters">
-        <select id="admin-filter-persona" class="filter-select">
-          <option value="">👤 Totes les persones</option>
-        </select>
-        <select id="admin-filter-qui" class="filter-select">
-          <option value="">📤 Tots els col·laboradors</option>
-        </select>
-      </div>
-      <div id="admin-loading" class="meves-loading">Carregant...</div>
-      <div id="admin-empty" class="meves-empty hidden">Cap foto trobada.</div>
-      <div id="admin-grid" class="admin-grid"></div>
+      <div id="videos-loading" class="meves-loading hidden">Carregant...</div>
+      <div id="videos-empty" class="meves-empty hidden">Encara no hi ha vídeos.</div>
+      <div id="videos-carousel" class="videos-carousel"></div>
     </div>
   </div>
 
   <!-- LIGHTBOX -->
   <div id="lightbox-overlay" class="lightbox-overlay hidden">
     <button id="lightbox-close" class="lightbox-close">✕</button>
+    <button id="lightbox-edit" class="lightbox-edit" title="Editar">✏️</button>
     <button id="lightbox-prev" class="lightbox-nav lightbox-prev">‹</button>
     <button id="lightbox-next" class="lightbox-nav lightbox-next">›</button>
     <div class="lightbox-content">
