@@ -208,6 +208,7 @@ const App = (() => {
     prefBtn.textContent = photo.preferida ? '⭐ Foto preferida' : '☆ Marcar com a preferida';
 
     document.getElementById('admin-modal-overlay').classList.remove('hidden');
+    initAdminLlocInput();
     } catch(err) {
       console.error('openAdminModal error:', err);
       UI.showToast('Error obrint editor: ' + err.message, 'error');
@@ -228,6 +229,81 @@ const App = (() => {
     container.appendChild(btn);
   }
 
+  // ── Autocomplete del lloc al modal d'edició ──
+  let _adminLlocBound = false;
+  function initAdminLlocInput() {
+    if (_adminLlocBound) return;
+    _adminLlocBound = true;
+
+    const input    = document.getElementById('admin-modal-lloc');
+    const dropdown = document.getElementById('admin-places-dropdown');
+    if (!input || !dropdown) return;
+
+    let _debounce = null;
+    input.addEventListener('input', () => {
+      clearTimeout(_debounce);
+      const val = input.value.trim();
+      document.getElementById('admin-modal-lat').value = '';
+      document.getElementById('admin-modal-lng').value = '';
+      if (val.length < 2) { dropdown.classList.add('hidden'); return; }
+      _debounce = setTimeout(async () => {
+        const suggestions = await Geocoder.autocomplete(val);
+        dropdown.innerHTML = '';
+        if (suggestions.length === 0) {
+          const div = document.createElement('div');
+          div.className = 'places-option places-option-geocode';
+          div.textContent = `Usar "${val}"`;
+          div.addEventListener('mousedown', async (e) => {
+            e.preventDefault();
+            dropdown.classList.add('hidden');
+            const c = await Geocoder.geocode(val);
+            if (c) {
+              document.getElementById('admin-modal-lat').value = c.lat;
+              document.getElementById('admin-modal-lng').value = c.lng;
+              UI.showToast('Ubicació trobada ✓', 'success');
+            }
+          });
+          dropdown.appendChild(div);
+          dropdown.classList.remove('hidden');
+          return;
+        }
+        dropdown.classList.remove('hidden');
+        suggestions.forEach(s => {
+          const div = document.createElement('div');
+          div.className = 'places-option';
+          div.textContent = s.text;
+          div.addEventListener('mousedown', async (e) => {
+            e.preventDefault();
+            input.value = s.mainText;
+            dropdown.classList.add('hidden');
+            const c = await Geocoder.geocodeByPlaceId(s.placeId) || await Geocoder.geocode(s.mainText);
+            if (c) {
+              document.getElementById('admin-modal-lat').value = c.lat;
+              document.getElementById('admin-modal-lng').value = c.lng;
+              UI.showToast('Ubicació trobada ✓', 'success');
+            }
+          });
+          dropdown.appendChild(div);
+        });
+      }, 400);
+    });
+
+    input.addEventListener('blur', () => {
+      setTimeout(async () => {
+        dropdown.classList.add('hidden');
+        const val = input.value.trim();
+        const lat = document.getElementById('admin-modal-lat').value;
+        if (val && !lat) {
+          const c = await Geocoder.geocode(val);
+          if (c) {
+            document.getElementById('admin-modal-lat').value = c.lat;
+            document.getElementById('admin-modal-lng').value = c.lng;
+          }
+        }
+      }, 250);
+    });
+  }
+
   async function saveAdmin() {
     if (!_adminCurrent) return;
     const isVideo   = _adminCurrent.tipus === 'video';
@@ -245,10 +321,17 @@ const App = (() => {
     btn.disabled = true; btn.textContent = 'Guardant...';
 
     try {
+      // Geocodificar si hi ha lloc però no coordenades
+      let finalLat = lat ? parseFloat(lat) : null;
+      let finalLng = lng ? parseFloat(lng) : null;
+      if (!isVideo && lloc && (finalLat === null || finalLng === null)) {
+        const c = await Geocoder.geocode(lloc);
+        if (c) { finalLat = c.lat; finalLng = c.lng; }
+      }
       await Sheets.updateRowByFileId(_adminCurrent.fileId, {
         any, lloc, notes, categoria, persones, preferida,
-        lat: lat ? parseFloat(lat) : null,
-        lng: lng ? parseFloat(lng) : null,
+        lat: finalLat,
+        lng: finalLng,
       });
       UI.showToast('Canvis guardats!', 'success');
       closeAdminModal();
