@@ -1903,3 +1903,31 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   border-radius: 12px;
   display: block;
 }
+
+/* ── Fix visibilitat panell vídeos ──────────── */
+#panel-videos:not(.hidden) {
+  display: block;
+  width: 100%;
+  min-height: 200px;
+  background: var(--bg);
+}
+#panel-videos .videos-carousel {
+  width: 100%;
+  min-height: 100px;
+}
+#panel-videos .video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 200px;
+  background: #000;
+}
+#panel-videos .video-slide,
+#panel-videos .video-slide-continu {
+  width: 100%;
+  box-sizing: border-box;
+}
+/* El track no ha de col·lapsar */
+#panel-videos .videos-track {
+  width: 100%;
+  align-items: flex-start;
+}

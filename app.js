@@ -109,7 +109,6 @@ const App = (() => {
     if (!carousel) { console.error('videos-carousel no trobat'); return; }
 
     _videosList = _photos.filter(p => p.tipus === 'video');
-    console.log('renderVideos: total fotos', _photos.length, '→ vídeos', _videosList.length);
     if (count) count.textContent = `${_videosList.length} vídeo${_videosList.length !== 1 ? 's' : ''}`;
 
     if (_videosList.length === 0) {
