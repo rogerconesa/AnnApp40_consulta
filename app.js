@@ -106,15 +106,18 @@ const App = (() => {
     const empty    = document.getElementById('videos-empty');
     const count    = document.getElementById('videos-count');
 
+    if (!carousel) { console.error('videos-carousel no trobat'); return; }
+
     _videosList = _photos.filter(p => p.tipus === 'video');
-    count.textContent = `${_videosList.length} vídeo${_videosList.length !== 1 ? 's' : ''}`;
+    console.log('renderVideos: total fotos', _photos.length, '→ vídeos', _videosList.length);
+    if (count) count.textContent = `${_videosList.length} vídeo${_videosList.length !== 1 ? 's' : ''}`;
 
     if (_videosList.length === 0) {
       carousel.innerHTML = '';
-      empty.classList.remove('hidden');
+      if (empty) empty.classList.remove('hidden');
       return;
     }
-    empty.classList.add('hidden');
+    if (empty) empty.classList.add('hidden');
 
     // Toggle de vista
     let toolbar = document.getElementById('videos-toolbar');
@@ -135,15 +138,13 @@ const App = (() => {
   }
 
   function _videoSlideHtml(video) {
-    // Reproductor natiu HTML5 amb la URL pública del Drive.
-    // Si falla, cau automàticament a l'iframe del Drive.
-    const directUrl  = `https://drive.google.com/uc?export=download&id=${video.fileId}`;
+    // L'iframe /preview del Drive és l'únic mètode fiable (les URLs directes
+    // estan bloquejades per CORB). Reprodueix dins l'app sense sortir.
     const previewUrl = `https://drive.google.com/file/d/${video.fileId}/preview`;
     return `
       <div class="video-frame">
-        <video class="video-native" controls playsinline preload="metadata" data-preview="${previewUrl}">
-          <source src="${directUrl}" type="video/mp4" />
-        </video>
+        <iframe src="${previewUrl}" allow="autoplay; fullscreen" allowfullscreen
+          style="width:100%;height:100%;border:0;border-radius:12px"></iframe>
       </div>
       <div class="video-info">
         <div class="video-info-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
@@ -152,26 +153,7 @@ const App = (() => {
       </div>`;
   }
 
-  function _bindVideoFallback() {
-    document.querySelectorAll('.video-native').forEach(vid => {
-      if (vid.dataset.bound) return;
-      vid.dataset.bound = '1';
-      const src = vid.querySelector('source');
-      if (src) src.addEventListener('error', () => _fallbackToIframe(vid));
-      vid.addEventListener('error', () => _fallbackToIframe(vid));
-      let loaded = false;
-      vid.addEventListener('loadedmetadata', () => { loaded = true; });
-      setTimeout(() => { if (!loaded && vid.readyState === 0) _fallbackToIframe(vid); }, 4500);
-    });
-  }
-
-  function _fallbackToIframe(vid) {
-    const frame = vid.closest('.video-frame');
-    if (!frame || frame.dataset.fellback) return;
-    frame.dataset.fellback = '1';
-    frame.innerHTML = `<iframe src="${vid.dataset.preview}" allow="autoplay" allowfullscreen
-      style="width:100%;height:100%;border:0;border-radius:12px"></iframe>`;
-  }
+  function _bindVideoFallback() { /* no-op: iframe sempre funciona */ }
 
   function _drawVideos() {
     const carousel = document.getElementById('videos-carousel');
