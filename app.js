@@ -98,62 +98,137 @@ const App = (() => {
   // ══════════════════════════════════════════
   let _videoIdx = 0;
 
+  let _videosMode = 'carousel'; // 'carousel' | 'continu'
+  let _videosList = [];
+
   function renderVideos() {
     const carousel = document.getElementById('videos-carousel');
     const empty    = document.getElementById('videos-empty');
     const count    = document.getElementById('videos-count');
 
-    const videos = _photos.filter(p => p.tipus === 'video');
-    carousel.innerHTML = '';
-    count.textContent = `${videos.length} vídeo${videos.length !== 1 ? 's' : ''}`;
+    _videosList = _photos.filter(p => p.tipus === 'video');
+    count.textContent = `${_videosList.length} vídeo${_videosList.length !== 1 ? 's' : ''}`;
 
-    if (videos.length === 0) { empty.classList.remove('hidden'); return; }
+    if (_videosList.length === 0) {
+      carousel.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
     empty.classList.add('hidden');
 
+    // Toggle de vista
+    let toolbar = document.getElementById('videos-toolbar');
+    if (!toolbar) {
+      toolbar = document.createElement('div');
+      toolbar.id = 'videos-toolbar';
+      toolbar.className = 'videos-toolbar';
+      carousel.parentElement.insertBefore(toolbar, carousel);
+    }
+    toolbar.innerHTML = `
+      <button id="vmode-carousel" class="vmode-btn ${_videosMode === 'carousel' ? 'active' : ''}">🎬 Un a un</button>
+      <button id="vmode-continu" class="vmode-btn ${_videosMode === 'continu' ? 'active' : ''}">📜 Tots seguits</button>
+    `;
+    document.getElementById('vmode-carousel').onclick = () => { _videosMode = 'carousel'; _drawVideos(); };
+    document.getElementById('vmode-continu').onclick  = () => { _videosMode = 'continu';  _drawVideos(); };
+
+    _drawVideos();
+  }
+
+  function _videoSlideHtml(video) {
+    // Reproductor natiu HTML5 amb la URL pública del Drive.
+    // Si falla, cau automàticament a l'iframe del Drive.
+    const directUrl  = `https://drive.google.com/uc?export=download&id=${video.fileId}`;
+    const previewUrl = `https://drive.google.com/file/d/${video.fileId}/preview`;
+    return `
+      <div class="video-frame">
+        <video class="video-native" controls playsinline preload="metadata" data-preview="${previewUrl}">
+          <source src="${directUrl}" type="video/mp4" />
+        </video>
+      </div>
+      <div class="video-info">
+        <div class="video-info-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
+        ${video.categoria.length ? `<div class="video-info-cat">${video.categoria.join(' · ')}</div>` : ''}
+        ${video.notes ? `<div class="video-info-notes">"${video.notes}"</div>` : ''}
+      </div>`;
+  }
+
+  function _bindVideoFallback() {
+    document.querySelectorAll('.video-native').forEach(vid => {
+      if (vid.dataset.bound) return;
+      vid.dataset.bound = '1';
+      const src = vid.querySelector('source');
+      if (src) src.addEventListener('error', () => _fallbackToIframe(vid));
+      vid.addEventListener('error', () => _fallbackToIframe(vid));
+      let loaded = false;
+      vid.addEventListener('loadedmetadata', () => { loaded = true; });
+      setTimeout(() => { if (!loaded && vid.readyState === 0) _fallbackToIframe(vid); }, 4500);
+    });
+  }
+
+  function _fallbackToIframe(vid) {
+    const frame = vid.closest('.video-frame');
+    if (!frame || frame.dataset.fellback) return;
+    frame.dataset.fellback = '1';
+    frame.innerHTML = `<iframe src="${vid.dataset.preview}" allow="autoplay" allowfullscreen
+      style="width:100%;height:100%;border:0;border-radius:12px"></iframe>`;
+  }
+
+  function _drawVideos() {
+    const carousel = document.getElementById('videos-carousel');
+    carousel.innerHTML = '';
+    document.getElementById('vmode-carousel')?.classList.toggle('active', _videosMode === 'carousel');
+    document.getElementById('vmode-continu')?.classList.toggle('active', _videosMode === 'continu');
+
+    if (_videosMode === 'continu') {
+      // Llista vertical: tots els vídeos seguits
+      carousel.classList.add('videos-continu');
+      const list = document.createElement('div');
+      list.className = 'videos-list';
+      _videosList.forEach(video => {
+        const slide = document.createElement('div');
+        slide.className = 'video-slide-continu';
+        slide.innerHTML = _videoSlideHtml(video);
+        list.appendChild(slide);
+      });
+      carousel.appendChild(list);
+      _bindVideoFallback();
+      return;
+    }
+
+    // Mode carrussel: un a un
+    carousel.classList.remove('videos-continu');
     _videoIdx = 0;
 
     const track = document.createElement('div');
     track.className = 'videos-track';
     track.id = 'videos-track';
 
-    videos.forEach((video, i) => {
+    _videosList.forEach(video => {
       const slide = document.createElement('div');
       slide.className = 'video-slide';
-      slide.innerHTML = `
-        <div class="video-frame">
-          <iframe src="https://drive.google.com/file/d/${video.fileId}/preview"
-            allow="autoplay" allowfullscreen
-            style="width:100%;height:100%;border:0;border-radius:12px"></iframe>
-        </div>
-        <div class="video-info">
-          <div class="video-info-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
-          ${video.categoria.length ? `<div class="video-info-cat">${video.categoria.join(' · ')}</div>` : ''}
-          ${video.notes ? `<div class="video-info-notes">"${video.notes}"</div>` : ''}
-        </div>
-      `;
+      slide.innerHTML = _videoSlideHtml(video);
       track.appendChild(slide);
     });
-
     carousel.appendChild(track);
 
-    // Controls
-    if (videos.length > 1) {
+    if (_videosList.length > 1) {
       const nav = document.createElement('div');
       nav.className = 'videos-nav';
       nav.innerHTML = `
         <button id="video-prev" class="videos-nav-btn">‹ Anterior</button>
-        <span id="video-counter" class="videos-counter">1 / ${videos.length}</span>
+        <span id="video-counter" class="videos-counter">1 / ${_videosList.length}</span>
         <button id="video-next" class="videos-nav-btn">Següent ›</button>
       `;
       carousel.appendChild(nav);
 
       const update = () => {
         track.style.transform = `translateX(-${_videoIdx * 100}%)`;
-        document.getElementById('video-counter').textContent = `${_videoIdx + 1} / ${videos.length}`;
+        document.getElementById('video-counter').textContent = `${_videoIdx + 1} / ${_videosList.length}`;
       };
       document.getElementById('video-prev').onclick = () => { if (_videoIdx > 0) { _videoIdx--; update(); } };
-      document.getElementById('video-next').onclick = () => { if (_videoIdx < videos.length - 1) { _videoIdx++; update(); } };
+      document.getElementById('video-next').onclick = () => { if (_videoIdx < _videosList.length - 1) { _videoIdx++; update(); } };
     }
+    _bindVideoFallback();
   }
 
   function openAdminModal(photo) {

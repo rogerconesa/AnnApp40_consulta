@@ -1849,3 +1849,57 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   --gold-dim: rgba(245,158,11,0.15);
   --bg-elev: var(--bg2);
 }
+
+/* ── Vídeos: toggle de vista ────────────────── */
+.videos-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 0 1rem 0.75rem;
+}
+.vmode-btn {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.6rem;
+  transition: var(--transition);
+}
+.vmode-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── Vídeos: mode continu (tots seguits) ────── */
+.videos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 2rem;
+}
+.video-slide-continu {
+  width: 100%;
+}
+.video-slide-continu .video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.video-slide-continu .video-info {
+  padding: 0.85rem 0.25rem 0;
+  text-align: center;
+}
+
+/* ── Reproductor de vídeo natiu ──────────────── */
+.video-native {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  border-radius: 12px;
+  display: block;
+}
