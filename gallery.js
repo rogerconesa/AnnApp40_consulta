@@ -159,7 +159,7 @@ const Gallery = (() => {
     const query = input.value.trim();
     if (!query) return;
 
-    _setIAStatus('loading', 'La IA està buscant entre les fotos...');
+    _setIAStatus('loading', 'Buscant entre les fotos...');
     document.getElementById('ia-send').disabled = true;
     document.getElementById('ia-clear').classList.remove('hidden');
 
@@ -168,24 +168,53 @@ const Gallery = (() => {
       _iaFilteredIds = ids;
       apply();
       const count = _filteredPhotos.length;
-      _setIAResponse(`✨ He trobat ${count} foto${count !== 1 ? 's' : ''} relacionades amb la teva pregunta.`);
+      if (count > 0) {
+        _setIAResponse(`✨ He trobat ${count} foto${count !== 1 ? 's' : ''} relacionades amb la teva cerca.`);
+      } else {
+        // Gemini no ha trobat res → provar cerca per text
+        _fallbackTextSearch(query);
+      }
     } catch(err) {
-      console.error(err);
-      _setIAStatus('', '');
-      _setIAResponse('No he pogut processar la cerca. Provo cerca per text...');
-      _iaFilteredIds = _simpleTextSearch(query).map(p => p.fileId);
-      apply();
+      console.warn('Cerca IA no disponible, usant cerca per text:', err);
+      _fallbackTextSearch(query);
     } finally {
       document.getElementById('ia-send').disabled = false;
       _setIAStatus('', '');
     }
   }
 
+  function _fallbackTextSearch(query) {
+    const results = _simpleTextSearch(query);
+    _iaFilteredIds = results.map(p => p.fileId);
+    apply();
+    const count = results.length;
+    if (count > 0) {
+      _setIAResponse(`🔎 He trobat ${count} foto${count !== 1 ? 's' : ''} que coincideixen amb "${query}".`);
+    } else {
+      _iaFilteredIds = null;
+      apply();
+      _setIAResponse(`No he trobat fotos amb "${query}". Prova amb els filtres de dalt (persona, lloc, categoria) per afinar la cerca.`);
+    }
+  }
+
   function _simpleTextSearch(query) {
-    const q = query.toLowerCase();
+    // Paraules buides a ignorar
+    const stop = new Set(['busca','buscar','fotos','foto','video','videos','vídeo','vídeos',
+      'de','del','la','el','les','els','amb','en','a','i','o','un','una','que','on','quan',
+      'mostra','ensenya','vull','veure','totes','tots','les','algun','alguna']);
+
+    const words = query.toLowerCase()
+      .replace(/[?¿!¡.,;:]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 1 && !stop.has(w));
+
+    if (words.length === 0) return [];
+
     return _allPhotos.filter(p => {
-      const searchable = [p.any, p.lloc, p.notes, ...p.persones, ...p.categoria, p.pujatNom].join(' ').toLowerCase();
-      return searchable.includes(q);
+      const searchable = [p.any, p.lloc, p.notes, ...p.persones, ...p.categoria, p.pujatNom]
+        .join(' ').toLowerCase();
+      // Coincideix si TOTES les paraules clau hi són (o almenys una si només n'hi ha una)
+      return words.some(w => searchable.includes(w));
     });
   }
 
