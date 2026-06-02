@@ -28,10 +28,13 @@ const MapView = (() => {
 
     const { Map } = await google.maps.importLibrary('maps');
 
+    const isDark = document.documentElement.dataset.theme === 'dark';
+
     _map = new Map(container, {
       center: { lat: 41.3851, lng: 2.1734 },
       zoom: 6,
       mapId: 'annapp40_map',
+      colorScheme: isDark ? 'DARK' : 'LIGHT',
       zoomControl: true,
       mapTypeControl: false,
       streetViewControl: false,
@@ -40,6 +43,15 @@ const MapView = (() => {
 
     _initialized = true;
     _renderMarkers();
+
+    // Escoltar canvis de tema per actualitzar el mapa
+    const observer = new MutationObserver(() => {
+      const nowDark = document.documentElement.dataset.theme === 'dark';
+      if (_map && _map.setOptions) {
+        _map.setOptions({ colorScheme: nowDark ? 'DARK' : 'LIGHT' });
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   }
 
   async function _renderMarkers() {
@@ -87,21 +99,23 @@ const MapView = (() => {
 
     Object.values(byLloc).forEach(group => {
       const count    = group.photos.length;
-      const size     = count === 1 ? 30 : count < 5 ? 36 : 44;
-      const bg       = count === 1 ? '#0a84ff' : count < 5 ? '#5ac8fa' : '#ffd60a';
-      const color    = count < 5 ? '#fff' : '#000';
+      const size     = count === 1 ? 18 : count < 5 ? 24 : 30;
+      const bg       = count === 1 ? '#0a84ff' : count < 5 ? '#34c759' : '#ff9500';
 
       const pin = document.createElement('div');
       pin.style.cssText = [
         `width:${size}px`, `height:${size}px`,
-        `background:${bg}`, `color:${color}`,
-        'border-radius:50%', 'border:2px solid #fff',
+        `background:${bg}`, 'color:#fff',
+        'border-radius:50%', 'border:2px solid rgba(255,255,255,0.95)',
         'display:flex', 'align-items:center', 'justify-content:center',
-        `font-size:${count < 10 ? 13 : 11}px`, 'font-weight:700',
+        `font-size:${count === 1 ? 0 : count < 10 ? 11 : 9}px`, 'font-weight:700',
         "font-family:-apple-system,sans-serif",
-        'box-shadow:0 2px 8px rgba(0,0,0,0.35)', 'cursor:pointer',
+        'box-shadow:0 1px 4px rgba(0,0,0,0.4)', 'cursor:pointer',
+        'transition:transform 0.15s ease',
       ].join(';');
-      pin.textContent = count > 1 ? String(count) : '📍';
+      pin.textContent = count > 1 ? String(count) : '';
+      pin.onmouseenter = () => pin.style.transform = 'scale(1.25)';
+      pin.onmouseleave = () => pin.style.transform = 'scale(1)';
 
       // Log per depurar
       console.log(`📍 Marker: ${group.lloc} → lat:${group.lat}, lng:${group.lng}`);
@@ -120,7 +134,7 @@ const MapView = (() => {
       });
 
       let _openInfo = null;
-      marker.addListener('click', () => {
+      marker.addListener('gmp-click', () => {
         if (_openInfo) _openInfo.close();
         _openInfo = infoWindow;
         infoWindow.open({ map: _map, anchor: marker });

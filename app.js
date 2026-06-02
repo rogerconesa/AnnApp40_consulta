@@ -28,6 +28,7 @@ const App = (() => {
         await loadPhotos();
         Gallery.init(_photos);
         initAdmin();
+        initDia();
         // Mapa: s'inicialitza lazy quan l'usuari obre la pestanya
       },
       () => UI.showScreen('screen-login')
@@ -50,6 +51,12 @@ const App = (() => {
         }
         if (tab.dataset.tab === 'videos') {
           renderVideos();
+        }
+        if (tab.dataset.tab === 'dia') {
+          loadDia();
+          startDiaAutoRefresh();
+        } else {
+          stopDiaAutoRefresh();
         }
       });
     });
@@ -98,118 +105,126 @@ const App = (() => {
   // ══════════════════════════════════════════
   let _videoIdx = 0;
 
-  let _videosMode = 'carousel'; // 'carousel' | 'continu'
+  let _videosAll  = [];
   let _videosList = [];
 
   function renderVideos() {
-    const carousel = document.getElementById('videos-carousel');
-    const empty    = document.getElementById('videos-empty');
-    const count    = document.getElementById('videos-count');
+    const grid  = document.getElementById('videos-grid');
+    const empty = document.getElementById('videos-empty');
+    const count = document.getElementById('videos-count');
+    if (!grid) return;
 
-    if (!carousel) { console.error('videos-carousel no trobat'); return; }
+    _videosAll = _photos.filter(p => p.tipus === 'video');
 
-    _videosList = _photos.filter(p => p.tipus === 'video');
+    // Omplir filtre de categories
+    const filtCat = document.getElementById('videos-filter-cat');
+    if (filtCat) {
+      const cats = [...new Set(_videosAll.flatMap(v => v.categoria))].filter(Boolean).sort();
+      const prev = filtCat.value;
+      filtCat.innerHTML = '<option value="">🏷️ Totes les categories</option>';
+      cats.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c; o.textContent = c;
+        if (c === prev) o.selected = true;
+        filtCat.appendChild(o);
+      });
+      filtCat.onchange = renderVideos;
+    }
+
+    const selectedCat = filtCat?.value || '';
+    _videosList = selectedCat
+      ? _videosAll.filter(v => v.categoria.includes(selectedCat))
+      : _videosAll;
+
     if (count) count.textContent = `${_videosList.length} vídeo${_videosList.length !== 1 ? 's' : ''}`;
 
+    // Botó reproduir tots
+    const playAll = document.getElementById('videos-play-all');
+    if (playAll) {
+      playAll.style.display = _videosList.length > 1 ? '' : 'none';
+      playAll.onclick = () => _openVideoPlayer(0, true);
+    }
+
+    grid.innerHTML = '';
+    document.getElementById('videos-carousel')?.classList.add('hidden');
+    grid.classList.remove('hidden');
+
     if (_videosList.length === 0) {
-      carousel.innerHTML = '';
       if (empty) empty.classList.remove('hidden');
       return;
     }
     if (empty) empty.classList.add('hidden');
 
-    // Toggle de vista
-    let toolbar = document.getElementById('videos-toolbar');
-    if (!toolbar) {
-      toolbar = document.createElement('div');
-      toolbar.id = 'videos-toolbar';
-      toolbar.className = 'videos-toolbar';
-      carousel.parentElement.insertBefore(toolbar, carousel);
-    }
-    toolbar.innerHTML = `
-      <button id="vmode-carousel" class="vmode-btn ${_videosMode === 'carousel' ? 'active' : ''}">🎬 Un a un</button>
-      <button id="vmode-continu" class="vmode-btn ${_videosMode === 'continu' ? 'active' : ''}">📜 Tots seguits</button>
-    `;
-    document.getElementById('vmode-carousel').onclick = () => { _videosMode = 'carousel'; _drawVideos(); };
-    document.getElementById('vmode-continu').onclick  = () => { _videosMode = 'continu';  _drawVideos(); };
-
-    _drawVideos();
-  }
-
-  function _videoSlideHtml(video) {
-    // L'iframe /preview del Drive és l'únic mètode fiable (les URLs directes
-    // estan bloquejades per CORB). Reprodueix dins l'app sense sortir.
-    const previewUrl = `https://drive.google.com/file/d/${video.fileId}/preview`;
-    return `
-      <div class="video-frame">
-        <iframe src="${previewUrl}" allow="autoplay; fullscreen" allowfullscreen
-          style="width:100%;height:100%;border:0;border-radius:12px"></iframe>
-      </div>
-      <div class="video-info">
-        <div class="video-info-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
-        ${video.categoria.length ? `<div class="video-info-cat">${video.categoria.join(' · ')}</div>` : ''}
-        ${video.notes ? `<div class="video-info-notes">"${video.notes}"</div>` : ''}
-      </div>`;
-  }
-
-  function _bindVideoFallback() { /* no-op: iframe sempre funciona */ }
-
-  function _drawVideos() {
-    const carousel = document.getElementById('videos-carousel');
-    carousel.innerHTML = '';
-    document.getElementById('vmode-carousel')?.classList.toggle('active', _videosMode === 'carousel');
-    document.getElementById('vmode-continu')?.classList.toggle('active', _videosMode === 'continu');
-
-    if (_videosMode === 'continu') {
-      // Llista vertical: tots els vídeos seguits
-      carousel.classList.add('videos-continu');
-      const list = document.createElement('div');
-      list.className = 'videos-list';
-      _videosList.forEach(video => {
-        const slide = document.createElement('div');
-        slide.className = 'video-slide-continu';
-        slide.innerHTML = _videoSlideHtml(video);
-        list.appendChild(slide);
-      });
-      carousel.appendChild(list);
-      _bindVideoFallback();
-      return;
-    }
-
-    // Mode carrussel: un a un
-    carousel.classList.remove('videos-continu');
-    _videoIdx = 0;
-
-    const track = document.createElement('div');
-    track.className = 'videos-track';
-    track.id = 'videos-track';
-
-    _videosList.forEach(video => {
-      const slide = document.createElement('div');
-      slide.className = 'video-slide';
-      slide.innerHTML = _videoSlideHtml(video);
-      track.appendChild(slide);
-    });
-    carousel.appendChild(track);
-
-    if (_videosList.length > 1) {
-      const nav = document.createElement('div');
-      nav.className = 'videos-nav';
-      nav.innerHTML = `
-        <button id="video-prev" class="videos-nav-btn">‹ Anterior</button>
-        <span id="video-counter" class="videos-counter">1 / ${_videosList.length}</span>
-        <button id="video-next" class="videos-nav-btn">Següent ›</button>
+    // Graella de miniatures (com les fotos)
+    _videosList.forEach((video, idx) => {
+      const card = document.createElement('div');
+      card.className = 'video-card';
+      card.innerHTML = `
+        <div class="video-card-thumb">
+          <div class="video-card-play">▶</div>
+          🎬
+        </div>
+        <div class="video-card-info">
+          <div class="video-card-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
+          <div class="video-card-meta">${video.categoria.join(' · ') || 'Sense categoria'}</div>
+          ${video.notes ? `<div class="video-card-notes">"${video.notes}"</div>` : ''}
+        </div>
       `;
-      carousel.appendChild(nav);
+      card.addEventListener('click', () => _openVideoPlayer(idx, false));
+      grid.appendChild(card);
+    });
+  }
 
-      const update = () => {
-        track.style.transform = `translateX(-${_videoIdx * 100}%)`;
-        document.getElementById('video-counter').textContent = `${_videoIdx + 1} / ${_videosList.length}`;
-      };
-      document.getElementById('video-prev').onclick = () => { if (_videoIdx > 0) { _videoIdx--; update(); } };
-      document.getElementById('video-next').onclick = () => { if (_videoIdx < _videosList.length - 1) { _videoIdx++; update(); } };
+  // ── Reproductor de vídeo (modal carrussel) ───
+  function _openVideoPlayer(startIdx, shuffle) {
+    let list = [..._videosList];
+    if (shuffle) {
+      // Barreja aleatòria
+      for (let i = list.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
+      }
     }
-    _bindVideoFallback();
+    let idx = shuffle ? 0 : startIdx;
+
+    const overlay = document.getElementById('videos-carousel');
+    overlay.classList.remove('hidden');
+    document.getElementById('videos-grid').classList.add('hidden');
+
+    const render = () => {
+      const video = list[idx];
+      const previewUrl = `https://drive.google.com/file/d/${video.fileId}/preview`;
+      overlay.innerHTML = `
+        <div class="vplayer">
+          <button class="vplayer-close" id="vplayer-close">✕ Tornar</button>
+          <div class="vplayer-frame">
+            <iframe src="${previewUrl}" allow="autoplay; fullscreen" allowfullscreen
+              style="width:100%;height:100%;border:0;border-radius:12px"></iframe>
+          </div>
+          <div class="vplayer-info">
+            <div class="vplayer-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
+            ${video.categoria.length ? `<div class="vplayer-cat">${video.categoria.join(' · ')}</div>` : ''}
+            ${video.notes ? `<div class="vplayer-notes">"${video.notes}"</div>` : ''}
+          </div>
+          ${list.length > 1 ? `
+          <div class="vplayer-nav">
+            <button id="vplayer-prev" class="videos-nav-btn" ${idx === 0 ? 'disabled' : ''}>‹ Anterior</button>
+            <span class="videos-counter">${idx + 1} / ${list.length}</span>
+            <button id="vplayer-next" class="videos-nav-btn" ${idx === list.length - 1 ? 'disabled' : ''}>Següent ›</button>
+          </div>` : ''}
+        </div>
+      `;
+      document.getElementById('vplayer-close').onclick = () => {
+        overlay.classList.add('hidden');
+        overlay.innerHTML = '';
+        document.getElementById('videos-grid').classList.remove('hidden');
+      };
+      const prev = document.getElementById('vplayer-prev');
+      const next = document.getElementById('vplayer-next');
+      if (prev) prev.onclick = () => { if (idx > 0) { idx--; render(); } };
+      if (next) next.onclick = () => { if (idx < list.length - 1) { idx++; render(); } };
+    };
+    render();
   }
 
   function openAdminModal(photo) {
@@ -412,6 +427,93 @@ const App = (() => {
       Gallery.updatePhotos(_photos);
     } catch(err) {
       UI.showToast('Error eliminant: ' + err.message, 'error');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  // FOTOS DEL DIA (temps real)
+  // ══════════════════════════════════════════
+  let _diaRefreshTimer = null;
+  let _diaAutoOn       = true;
+  let _diaLastIds      = '';
+
+  function initDia() {
+    document.getElementById('dia-reload')?.addEventListener('click', () => loadDia(true));
+    document.getElementById('dia-autorefresh')?.addEventListener('click', function() {
+      _diaAutoOn = !_diaAutoOn;
+      this.classList.toggle('active', _diaAutoOn);
+      this.textContent = _diaAutoOn ? '🔄 Auto' : '⏸ Pausat';
+      if (_diaAutoOn) startDiaAutoRefresh(); else stopDiaAutoRefresh();
+    });
+  }
+
+  function startDiaAutoRefresh() {
+    stopDiaAutoRefresh();
+    if (!_diaAutoOn) return;
+    _diaRefreshTimer = setInterval(() => loadDia(false), 15000); // cada 15s
+  }
+  function stopDiaAutoRefresh() {
+    if (_diaRefreshTimer) { clearInterval(_diaRefreshTimer); _diaRefreshTimer = null; }
+  }
+
+  async function loadDia(showLoading) {
+    const grid    = document.getElementById('dia-grid');
+    const loading = document.getElementById('dia-loading');
+    const empty   = document.getElementById('dia-empty');
+    const count   = document.getElementById('dia-count');
+    if (!grid) return;
+
+    if (showLoading) { loading.classList.remove('hidden'); empty.classList.add('hidden'); }
+
+    try {
+      const dia = await Sheets.readDia();
+      loading.classList.add('hidden');
+
+      if (count) count.textContent = `${dia.length} element${dia.length !== 1 ? 's' : ''}`;
+
+      if (dia.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+
+      // Ordenar per data descendent (més recents primer)
+      dia.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+
+      // Si no hi ha canvis, no re-renderitzar (evita parpelleig)
+      const ids = dia.map(d => d.fileId).join(',');
+      if (ids === _diaLastIds) return;
+      _diaLastIds = ids;
+
+      grid.innerHTML = '';
+      dia.forEach(item => {
+        const isVideo = item.tipus === 'video';
+        const card = document.createElement('div');
+        card.className = 'dia-card' + (isVideo ? ' dia-card-video' : '');
+        if (isVideo) {
+          card.innerHTML = `
+            <div class="dia-card-media dia-card-vid">
+              <iframe src="https://drive.google.com/file/d/${item.fileId}/preview"
+                allow="autoplay" allowfullscreen style="width:100%;height:100%;border:0"></iframe>
+            </div>
+            <div class="dia-card-foot">${item.pujatNom || 'Anònim'}</div>`;
+        } else {
+          card.innerHTML = `
+            <div class="dia-card-media">
+              <img src="${item.url}" alt="" loading="lazy" />
+            </div>
+            <div class="dia-card-foot">${item.pujatNom || 'Anònim'}</div>`;
+          card.querySelector('img').addEventListener('click', () => {
+            if (typeof Gallery !== 'undefined') Gallery.openLightbox(item);
+          });
+        }
+        grid.appendChild(card);
+      });
+    } catch(err) {
+      loading.classList.add('hidden');
+      console.error('Error carregant fotos del dia:', err);
+      if (showLoading) UI.showToast('Error carregant fotos del dia', 'error');
     }
   }
 

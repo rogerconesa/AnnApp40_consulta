@@ -13,6 +13,7 @@ const Gallery = (() => {
     persona:   '',
     categoria: '',
     lloc:      '',
+    qui:       '',
     yearMin:   null,
     yearMax:   null,
   };
@@ -40,9 +41,12 @@ const Gallery = (() => {
     const llocs    = [...new Set(_allPhotos.map(p => p.lloc).filter(Boolean))].sort();
     const cats     = [...new Set(_allPhotos.flatMap(p => p.categoria))].filter(Boolean).sort();
 
+    const autors   = [...new Set(_allPhotos.map(p => p.pujatNom).filter(Boolean))].sort();
+
     _setOptions('filter-persona',   persones, '👤 Persona',    _filters.persona);
     _setOptions('filter-lloc',      llocs,    '📍 Lloc',       _filters.lloc);
     _setOptions('filter-categoria', cats,     '🏷️ Categoria', _filters.categoria);
+    _setOptions('filter-qui',       autors,   '📤 Qui ha pujat', _filters.qui);
   }
 
   function _setOptions(id, items, placeholder, current) {
@@ -62,13 +66,16 @@ const Gallery = (() => {
     document.getElementById('filter-persona')?.addEventListener('change', e => { _filters.persona = e.target.value; apply(); });
     document.getElementById('filter-lloc')?.addEventListener('change', e => { _filters.lloc = e.target.value; apply(); });
     document.getElementById('filter-categoria')?.addEventListener('change', e => { _filters.categoria = e.target.value; apply(); });
+    document.getElementById('filter-qui')?.addEventListener('change', e => { _filters.qui = e.target.value; apply(); });
     document.getElementById('btn-reset-filters')?.addEventListener('click', () => {
       _filters.persona   = '';
       _filters.lloc      = '';
       _filters.categoria = '';
+      _filters.qui       = '';
       document.getElementById('filter-persona').value   = '';
       document.getElementById('filter-lloc').value      = '';
       document.getElementById('filter-categoria').value = '';
+      const quiSel = document.getElementById('filter-qui'); if (quiSel) quiSel.value = '';
       _resetIA();
       _initYearSlider();
       apply();
@@ -258,6 +265,7 @@ Si no en trobes: {"ids": []}`;
       if (_filters.persona   && !p.persones.includes(_filters.persona))    return false;
       if (_filters.lloc      && p.lloc !== _filters.lloc)                  return false;
       if (_filters.categoria && !p.categoria.includes(_filters.categoria)) return false;
+      if (_filters.qui       && p.pujatNom !== _filters.qui)               return false;
       if (_filters.yearMin !== null && _filters.yearMax !== null) {
         const any = parseInt(p.any);
         if (!isNaN(any)) {

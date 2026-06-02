@@ -31,7 +31,8 @@
       <div class="header-logo">Anna<span class="logo-40">40</span></div>
       <nav class="header-nav">
         <button class="nav-tab active" data-tab="galeria">📸 Fotos</button>
-        <button class="nav-tab" data-tab="videos">🎬 Vídeos</button>
+        <button class="nav-tab" data-tab="videos">🎬 Felicitacions</button>
+        <button class="nav-tab" data-tab="dia">🎉 Fotos del dia</button>
         <button class="nav-tab" data-tab="mapa">🗺️ Mapa</button>
       </nav>
       <div class="header-user">
@@ -56,6 +57,9 @@
           </select>
           <select id="filter-categoria" class="filter-select">
             <option value="">🏷️ Categoria</option>
+          </select>
+          <select id="filter-qui" class="filter-select">
+            <option value="">📤 Qui ha pujat</option>
           </select>
           <button id="btn-reset-filters" class="btn-reset-pill">✕</button>
         </div>
@@ -126,12 +130,39 @@
     <!-- VÍDEOS -->
     <div id="panel-videos" class="tab-panel hidden">
       <div class="videos-header">
-        <span class="videos-title">🎬 Vídeos de felicitació</span>
+        <span class="videos-title">🎬 Felicitacions</span>
         <span id="videos-count" class="videos-count"></span>
       </div>
-      <div id="videos-loading" class="meves-loading hidden">Carregant...</div>
+      <div class="videos-controls">
+        <select id="videos-filter-cat" class="filter-select">
+          <option value="">🏷️ Totes les categories</option>
+        </select>
+        <button id="videos-play-all" class="videos-playall-btn">▶ Reproduir tots seguits</button>
+      </div>
       <div id="videos-empty" class="meves-empty hidden">Encara no hi ha vídeos.</div>
-      <div id="videos-carousel" class="videos-carousel"></div>
+      <div id="videos-grid" class="videos-grid"></div>
+      <div id="videos-carousel" class="videos-carousel hidden"></div>
+    </div>
+
+    <!-- FOTOS DEL DIA -->
+    <div id="panel-dia" class="tab-panel hidden">
+      <div class="dia-header">
+        <div>
+          <span class="dia-title">🎉 Fotos del dia</span>
+          <span id="dia-count" class="dia-count"></span>
+        </div>
+        <div class="dia-controls">
+          <button id="dia-autorefresh" class="dia-refresh-btn active" title="Actualització automàtica">🔄 Auto</button>
+          <button id="dia-reload" class="dia-refresh-btn" title="Actualitzar ara">↻</button>
+        </div>
+      </div>
+      <div id="dia-loading" class="meves-loading hidden">Carregant...</div>
+      <div id="dia-empty" class="dia-empty hidden">
+        <div class="dia-empty-icon">📸</div>
+        <p>Encara no hi ha fotos del dia.</p>
+        <p class="dia-empty-sub">Les fotos i vídeos que es pugin durant l'aniversari apareixeran aquí automàticament!</p>
+      </div>
+      <div id="dia-grid" class="dia-grid"></div>
     </div>
 
   </div>

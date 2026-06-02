@@ -120,5 +120,36 @@ const Sheets = (() => {
     if (!res.ok && res.status !== 204) throw new Error('Error eliminant fitxer: ' + res.status);
   }
 
-  return { readAll, updateRowByFileId, deleteRowByFileId, deleteFile };
+  async function readDia() {
+    const sheetName = CONFIG.SHEET_DIA || 'FotosDia';
+    const range     = `'${sheetName}'!A2:O`;
+    const endpoint  = `${BASE}/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
+    const res = await fetch(endpoint, { headers: _headers() });
+    if (!res.ok) {
+      // Si la pestanya no existeix encara, retornar buit
+      if (res.status === 400) return [];
+      throw new Error('Error llegint Fotos del dia');
+    }
+    const data = await res.json();
+    const rows = data.values || [];
+    return rows.map(r => ({
+      id:         r[0]  || '',
+      fileId:     r[1]  || '',
+      url:        r[2]  || '',
+      any:        r[3]  || '',
+      lloc:       r[4]  || '',
+      persones:   r[5]  ? String(r[5]).split(', ') : [],
+      categoria:  r[6]  ? String(r[6]).split(', ') : [],
+      notes:      r[7]  || '',
+      pujatNom:   r[8]  || '',
+      pujatEmail: r[9]  || '',
+      data:       r[10] || '',
+      lat:        _parseCoord(r[11]),
+      lng:        _parseCoord(r[12]),
+      tipus:      r[13] || 'foto',
+      preferida:  r[14] === 'true',
+    }));
+  }
+
+  return { readAll, updateRowByFileId, deleteRowByFileId, deleteFile, readDia };
 })();
