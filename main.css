@@ -2,7 +2,37 @@
    ANNA40 — STYLES v3 — Blau Apple, igual que AnnApp40
    ============================================ */
 
+/* ── TEMA CLAR (per defecte) ─────────────────── */
 :root {
+  --bg:          #f5f5f7;
+  --bg2:         #ffffff;
+  --bg3:         #f0f0f2;
+  --bg4:         #e5e5ea;
+  --bg-elev:     #ffffff;
+  --accent:      #0a84ff;
+  --accent2:     #0071e3;
+  --accent-dim:  rgba(10,132,255,0.10);
+  --gold:        #f59e0b;
+  --green:       #34c759;
+  --red:         #ff3b30;
+  --text:        #1d1d1f;
+  --text2:       #3a3a3c;
+  --text-muted:  #6e6e73;
+  --text-dim:    #aeaeb2;
+  --border:      rgba(0,0,0,0.08);
+  --border2:     rgba(0,0,0,0.13);
+  --radius:      14px;
+  --radius-sm:   10px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --shadow:     0 2px 12px rgba(0,0,0,0.10);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.16);
+  --transition: 0.2s ease;
+  --header-h:   54px;
+  --modal-bg:   #ffffff;
+}
+
+/* ── TEMA FOSC ───────────────────────────────── */
+[data-theme="dark"] {
   --bg:          #000;
   --bg2:         #0a0a0a;
   --bg3:         #141414;
@@ -20,13 +50,9 @@
   --text-dim:    #48484a;
   --border:      rgba(255,255,255,0.08);
   --border2:     rgba(255,255,255,0.14);
-  --radius:      14px;
-  --radius-sm:   10px;
-  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --shadow:     0 4px 20px rgba(0,0,0,0.4);
   --shadow-lg:  0 16px 50px rgba(0,0,0,0.6);
-  --transition: 0.2s ease;
-  --header-h:   54px;
+  --modal-bg:   #1c1c1e;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2587,3 +2613,26 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   .year-pill-label { font-size: 0.68rem; min-width: 54px; }
   .filter-year-pill { min-width: 110px; }
 }
+
+/* ── Línia 2 filtres: slider + ordre + reset ── */
+.filters-row-secondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px 8px;
+}
+.filters-row-secondary .filter-year-pill {
+  flex: 1;
+  min-width: 0;
+}
+.filters-row-secondary .sort-pill {
+  flex-shrink: 0;
+}
+
+/* ── Fix scroll fila 1 sense body overflow ─── */
+.filters-row-main {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.filters-row-main::-webkit-scrollbar { display: none; }
