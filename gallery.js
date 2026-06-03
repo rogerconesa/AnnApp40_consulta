@@ -10,10 +10,10 @@ const Gallery = (() => {
   let _iaFilteredIds  = null; // ids filtrats per la IA
 
   let _filters = {
-    persona:   '',
-    categoria: '',
-    lloc:      '',
-    qui:       '',
+    persona:   [],   // multi-select
+    categoria: [],   // multi-select
+    lloc:      '',   // single
+    qui:       '',   // single
     yearMin:   null,
     yearMax:   null,
   };
@@ -35,8 +35,8 @@ const Gallery = (() => {
     apply();
   }
 
-  // ── Populate drawer filters ───────────────────
-  let _activeDrawerFilter = null;
+  const MULTI_KEYS   = new Set(['persona', 'categoria']);
+  const SINGLE_KEYS  = new Set(['lloc', 'qui']);
 
   function _populateFilters() {
     const persones = [...new Set(_allPhotos.flatMap(p => p.persones))].filter(Boolean).sort();
@@ -51,6 +51,23 @@ const Gallery = (() => {
     _updateFilterLabels();
   }
 
+  function _isSelected(key, item) {
+    return MULTI_KEYS.has(key) ? _filters[key].includes(item) : _filters[key] === item;
+  }
+
+  function _toggleFilter(key, item) {
+    if (MULTI_KEYS.has(key)) {
+      const arr = _filters[key];
+      const idx = arr.indexOf(item);
+      if (idx === -1) arr.push(item); else arr.splice(idx, 1);
+    } else {
+      _filters[key] = (_filters[key] === item) ? '' : item;
+      if (SINGLE_KEYS.has(key)) _closeDrawer();
+    }
+    _populateFilters();
+    apply();
+  }
+
   function _renderDrawerOpts(key, items, searchVal) {
     const container = document.getElementById(`filter-${key}-opts`);
     if (!container) return;
@@ -58,54 +75,66 @@ const Gallery = (() => {
     const filtered = items.filter(i => !query || i.toLowerCase().includes(query));
     container.innerHTML = '';
 
-    // Opció "Tots"
+    // Botó "Tots/Netejar"
+    const isEmpty = MULTI_KEYS.has(key) ? _filters[key].length === 0 : !_filters[key];
     const allBtn = document.createElement('button');
-    allBtn.className = 'drawer-opt' + (!_filters[key] ? ' selected' : '');
+    allBtn.className = 'drawer-opt' + (isEmpty ? ' selected' : '');
     allBtn.textContent = 'Tots';
-    allBtn.onclick = () => { _filters[key] = ''; document.getElementById(`filter-${key}`).value = ''; _populateFilters(); _closeDrawer(); apply(); };
+    allBtn.onclick = () => {
+      if (MULTI_KEYS.has(key)) _filters[key] = []; else _filters[key] = '';
+      _populateFilters(); apply();
+    };
     container.appendChild(allBtn);
 
     filtered.forEach(item => {
       const btn = document.createElement('button');
-      btn.className = 'drawer-opt' + (_filters[key] === item ? ' selected' : '');
+      btn.className = 'drawer-opt' + (_isSelected(key, item) ? ' selected' : '');
       btn.textContent = item;
-      btn.onclick = () => { _filters[key] = item; document.getElementById(`filter-${key}`).value = item; _populateFilters(); _closeDrawer(); apply(); };
+      btn.onclick = () => _toggleFilter(key, item);
       container.appendChild(btn);
     });
   }
 
   function _updateFilterLabels() {
-    ['persona','lloc','categoria','qui'].forEach(key => {
+    const defaults = { persona: 'Persona', lloc: 'Lloc', categoria: 'Categoria', qui: 'Qui' };
+    Object.keys(defaults).forEach(key => {
       const lbl = document.getElementById(`flabel-${key}`);
+      const btn = lbl?.closest('.filter-icon-btn');
       if (!lbl) return;
-      const defaults = { persona: 'Persona', lloc: 'Lloc', categoria: 'Categoria', qui: 'Qui' };
-      lbl.textContent = _filters[key] || defaults[key];
-      const btn = lbl.closest('.filter-icon-btn');
-      if (btn) btn.classList.toggle('active', !!_filters[key]);
+
+      let txt, active;
+      if (MULTI_KEYS.has(key)) {
+        const arr = _filters[key];
+        active = arr.length > 0;
+        txt = arr.length === 0 ? defaults[key]
+            : arr.length === 1 ? arr[0]
+            : `${arr[0]} +${arr.length - 1}`;
+      } else {
+        active = !!_filters[key];
+        txt = _filters[key] || defaults[key];
+      }
+      lbl.textContent = txt;
+      btn?.classList.toggle('active', active);
     });
   }
+
+  let _activeDrawerFilter = null;
 
   function _closeDrawer() {
     _activeDrawerFilter = null;
     const drawer = document.getElementById('filter-drawer');
     if (drawer) drawer.classList.add('hidden');
-    const sections = drawer?.querySelectorAll('.filter-drawer-section');
-    sections?.forEach(s => s.classList.remove('visible'));
+    drawer?.querySelectorAll('.filter-drawer-section').forEach(s => s.classList.remove('visible'));
   }
 
   function _bindFilterEvents() {
-    // Botons d'icona → obrir secció corresponent de la persiana
     document.querySelectorAll('.filter-icon-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const key = btn.dataset.filter;
         const drawer = document.getElementById('filter-drawer');
         const allSections = drawer?.querySelectorAll('.filter-drawer-section');
-
-        if (_activeDrawerFilter === key) {
-          _closeDrawer();
-          return;
-        }
+        if (_activeDrawerFilter === key) { _closeDrawer(); return; }
         _activeDrawerFilter = key;
         drawer.classList.remove('hidden');
         allSections?.forEach((s, i) => {
@@ -116,24 +145,25 @@ const Gallery = (() => {
       });
     });
 
-    // Cerca en temps real dins cada secció
+    // Cerca en temps real
+    const allItemsFn = {
+      persona:   () => [...new Set(_allPhotos.flatMap(p => p.persones))].filter(Boolean).sort(),
+      lloc:      () => [...new Set(_allPhotos.map(p => p.lloc).filter(Boolean))].sort(),
+      categoria: () => [...new Set(_allPhotos.flatMap(p => p.categoria))].filter(Boolean).sort(),
+      qui:       () => [...new Set(_allPhotos.map(p => p.pujatNom).filter(Boolean))].sort(),
+    };
     ['persona','lloc','categoria','qui'].forEach(key => {
-      const searchInput = document.getElementById(`filter-${key}-search`);
-      const allItems = () => {
-        if (key === 'persona') return [...new Set(_allPhotos.flatMap(p => p.persones))].filter(Boolean).sort();
-        if (key === 'lloc')      return [...new Set(_allPhotos.map(p => p.lloc).filter(Boolean))].sort();
-        if (key === 'categoria') return [...new Set(_allPhotos.flatMap(p => p.categoria))].filter(Boolean).sort();
-        if (key === 'qui')       return [...new Set(_allPhotos.map(p => p.pujatNom).filter(Boolean))].sort();
-        return [];
-      };
-      searchInput?.addEventListener('input', () => _renderDrawerOpts(key, allItems(), searchInput.value));
+      const s = document.getElementById(`filter-${key}-search`);
+      s?.addEventListener('input', () => _renderDrawerOpts(key, allItemsFn[key](), s.value));
     });
 
-    // Reset
+    // Reset total
     document.getElementById('btn-reset-filters')?.addEventListener('click', () => {
-      _filters.persona = _filters.lloc = _filters.categoria = _filters.qui = '';
+      _filters.persona   = [];
+      _filters.categoria = [];
+      _filters.lloc      = '';
+      _filters.qui       = '';
       ['persona','lloc','categoria','qui'].forEach(k => {
-        const h = document.getElementById(`filter-${k}`); if (h) h.value = '';
         const s = document.getElementById(`filter-${k}-search`); if (s) s.value = '';
       });
       _closeDrawer();
@@ -361,15 +391,13 @@ Si no en trobes: {"ids": []}`;
   function apply() {
     _filteredPhotos = _allPhotos.filter(p => {
       if (_iaFilteredIds !== null && !_iaFilteredIds.includes(p.fileId)) return false;
-      if (_filters.persona   && !p.persones.includes(_filters.persona))    return false;
-      if (_filters.lloc      && p.lloc !== _filters.lloc)                  return false;
-      if (_filters.categoria && !p.categoria.includes(_filters.categoria)) return false;
-      if (_filters.qui       && p.pujatNom !== _filters.qui)               return false;
+      if (_filters.persona.length   && !_filters.persona.some(f => p.persones.includes(f)))    return false;
+      if (_filters.categoria.length && !_filters.categoria.some(f => p.categoria.includes(f))) return false;
+      if (_filters.lloc  && p.lloc !== _filters.lloc)      return false;
+      if (_filters.qui   && p.pujatNom !== _filters.qui)   return false;
       if (_filters.yearMin !== null && _filters.yearMax !== null) {
         const any = parseInt(p.any);
-        if (!isNaN(any)) {
-          if (any < _filters.yearMin || any > _filters.yearMax) return false;
-        }
+        if (!isNaN(any) && (any < _filters.yearMin || any > _filters.yearMax)) return false;
       }
       return true;
     });

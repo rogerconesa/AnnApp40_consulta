@@ -2272,3 +2272,56 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   transition: var(--transition);
 }
 .video-card:hover .video-card-play-icon { opacity: 1; }
+
+/* ── Slider anys sempre visible ─────────────── */
+.filter-year-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 1rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.filter-year-bar-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 90px;
+}
+.filter-year-bar .year-slider {
+  flex: 1;
+  position: relative;
+  height: 20px;
+}
+
+/* ── Hint multi-select ───────────────────────── */
+.filter-drawer-hint {
+  font-size: 0.72rem;
+  color: var(--accent);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+/* ── Icones filtres — ajustos layout ────────── */
+.filter-icon-btn .filter-icon-label {
+  max-width: 72px;
+}
+
+/* Desktop: icones més grans */
+@media (min-width: 600px) {
+  .filter-icons-row { gap: 8px; }
+  .filter-icon-btn { min-width: 70px; padding: 8px 12px; }
+  .filter-icon-emoji { font-size: 1.25rem; }
+  .filter-icon-label { font-size: 0.68rem; }
+  .filter-year-bar { padding: 0.4rem 1rem 0.75rem; }
+  .filter-options-list { max-height: 220px; }
+}
+
+/* Mòbil: compacte */
+@media (max-width: 599px) {
+  .filter-icon-btn { min-width: 50px; padding: 5px 8px; }
+  .filter-icon-emoji { font-size: 1rem; }
+  .filter-icon-label { font-size: 0.58rem; max-width: 52px; }
+  .filter-year-bar-label { font-size: 0.75rem; min-width: 70px; }
+  .filter-year-bar { gap: 6px; }
+}

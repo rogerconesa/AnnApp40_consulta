@@ -64,51 +64,40 @@
             <span class="filter-icon-emoji">📤</span>
             <span class="filter-icon-label" id="flabel-qui">Qui</span>
           </button>
-          <div class="filter-year-icon">
-            <span class="filter-icon-emoji">📅</span>
-            <span class="filter-icon-label" id="year-slider-values">—</span>
-          </div>
           <button id="btn-reset-filters" class="filter-reset-btn" title="Netejar filtres">✕</button>
+        </div>
+
+        <!-- Slider d'anys sempre visible -->
+        <div class="filter-year-bar">
+          <span class="filter-year-bar-label">📅 <span id="year-slider-values">—</span></span>
+          <div class="year-slider">
+            <div class="year-slider-track"></div>
+            <div class="year-slider-track-active" id="year-slider-track-active"></div>
+            <input type="range" id="year-min" />
+            <input type="range" id="year-max" />
+          </div>
         </div>
 
         <!-- Persiana de filtres -->
         <div id="filter-drawer" class="filter-drawer hidden">
           <div class="filter-drawer-section">
+            <div class="filter-drawer-hint">Pots seleccionar-ne diverses ✓</div>
             <input type="search" id="filter-persona-search" class="filter-search-input" placeholder="🔍 Cerca persona..." autocomplete="off" />
             <div class="filter-options-list" id="filter-persona-opts"></div>
-            <input type="hidden" id="filter-persona" value="" />
           </div>
           <div class="filter-drawer-section">
             <input type="search" id="filter-lloc-search" class="filter-search-input" placeholder="🔍 Cerca lloc..." autocomplete="off" />
             <div class="filter-options-list" id="filter-lloc-opts"></div>
-            <input type="hidden" id="filter-lloc" value="" />
           </div>
           <div class="filter-drawer-section">
+            <div class="filter-drawer-hint">Pots seleccionar-ne diverses ✓</div>
             <input type="search" id="filter-categoria-search" class="filter-search-input" placeholder="🔍 Cerca categoria..." autocomplete="off" />
             <div class="filter-options-list" id="filter-categoria-opts"></div>
-            <input type="hidden" id="filter-categoria" value="" />
           </div>
           <div class="filter-drawer-section">
             <input type="search" id="filter-qui-search" class="filter-search-input" placeholder="🔍 Cerca qui ha pujat..." autocomplete="off" />
             <div class="filter-options-list" id="filter-qui-opts"></div>
-            <input type="hidden" id="filter-qui" value="" />
           </div>
-          <div class="filter-drawer-section filter-drawer-year">
-            <label class="filter-drawer-year-label">📅 Anys: <span id="year-range-label">—</span></label>
-            <div class="year-slider">
-              <div class="year-slider-track"></div>
-              <div class="year-slider-track-active" id="year-slider-track-active"></div>
-              <input type="range" id="year-min" />
-              <input type="range" id="year-max" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Slider any (ocult — mogut al drawer) -->
-        <div class="year-slider-compact hidden">
-          <span class="year-slider-mini-label">📅</span>
-          <span class="year-slider-mini-values" id="year-slider-values-old"></span>
-          <div class="year-slider hidden"><div class="year-slider-track"></div><div class="year-slider-track-active"></div><input type="range" /><input type="range" /></div>
         </div>
       </div>
 
