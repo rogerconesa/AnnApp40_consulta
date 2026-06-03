@@ -2558,3 +2558,32 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   .filter-year-pill { min-width: 120px; }
   .year-pill-label { min-width: 60px; font-size: 0.7rem; }
 }
+
+/* ── FIX: fila filtres scrollable en mòbil ──── */
+/* body té overflow-x:hidden que bloqueja el scroll de la fila.
+   Cal que el row sigui un scroll container independent. */
+.filters-bar {
+  overflow: hidden; /* conté el drawer */
+}
+.filters-row-main {
+  overflow-x: scroll; /* forçar scroll, no auto */
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  /* Degradat dret per indicar que hi ha més contingut */
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+}
+/* Treure degradat quan s'arriba al final */
+.filters-row-main.at-end {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* ── Pills més compactes (label curt) ─────── */
+@media (max-width: 599px) {
+  .filter-pill { font-size: 0.7rem; padding: 5px 9px; gap: 4px; }
+  .filter-pill svg:not(.chevron) { width: 13px; height: 13px; }
+  .filter-pill .chevron { width: 10px; height: 10px; }
+  .year-pill-label { font-size: 0.68rem; min-width: 54px; }
+  .filter-year-pill { min-width: 110px; }
+}

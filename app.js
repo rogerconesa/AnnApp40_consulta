@@ -65,7 +65,16 @@ const App = (() => {
     document.getElementById('view-grid')?.addEventListener('click', () => Gallery.setView('grid'));
     document.getElementById('view-carousel')?.addEventListener('click', () => Gallery.setView('carousel'));
 
-    // Botó d'ordre cíclic
+    // Detectar scroll final de la fila de filtres (treure degradat)
+    const filterRow = document.querySelector('.filters-row-main');
+    if (filterRow) {
+      const checkScroll = () => {
+        const atEnd = filterRow.scrollLeft + filterRow.clientWidth >= filterRow.scrollWidth - 8;
+        filterRow.classList.toggle('at-end', atEnd);
+      };
+      filterRow.addEventListener('scroll', checkScroll, { passive: true });
+      setTimeout(checkScroll, 300);
+    }
     const sortModes = [
       { key: 'year-asc',  label: 'Any ↑' },
       { key: 'year-desc', label: 'Any ↓' },
@@ -85,10 +94,12 @@ const App = (() => {
       });
     }
 
-    // Toggle tema clar/fosc
-    const savedTheme = localStorage.getItem('anna40_theme') || 'light';
-    document.documentElement.dataset.theme = savedTheme;
-    _updateThemeIcon(savedTheme);
+    // Toggle tema clar/fosc — light per defecte
+    // Esborrem valor antic de localStorage si era dark (tema anterior per defecte)
+    const savedTheme = localStorage.getItem('anna40_theme');
+    const theme = savedTheme || 'light';
+    document.documentElement.dataset.theme = theme;
+    _updateThemeIcon(theme);
 
     document.getElementById('btn-theme')?.addEventListener('click', () => {
       const isDark = document.documentElement.dataset.theme === 'dark';
