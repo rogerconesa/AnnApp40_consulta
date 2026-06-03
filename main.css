@@ -2417,3 +2417,144 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   .nav-icon { width: 20px; height: 20px; margin: 0; }
   .nav-tab { padding: 6px 10px; }
 }
+
+/* ============================================
+   FILTRES — PILL ROW (mateix estil que nav)
+   ============================================ */
+
+/* Una sola línia scrollable */
+.filters-row-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border);
+}
+.filters-row-main::-webkit-scrollbar { display: none; }
+
+/* Pill base — coherent amb nav-tab */
+.filter-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.filter-pill svg:not(.chevron) { width: 14px; height: 14px; flex-shrink: 0; }
+.filter-pill .chevron { width: 12px; height: 12px; flex-shrink: 0; transition: transform 0.2s; }
+.filter-pill:hover { border-color: var(--accent); color: var(--accent); background: var(--bg3); }
+.filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.filter-pill.active svg { stroke: #fff; }
+
+/* Pill del slider d'anys */
+.filter-year-pill {
+  flex: 1;
+  min-width: 140px;
+  max-width: 260px;
+  gap: 6px;
+  cursor: default;
+  padding: 6px 10px 6px 12px;
+}
+.filter-year-pill:hover { border-color: var(--accent); color: var(--text); }
+.year-pill-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 72px;
+  color: var(--text);
+}
+.year-slider-inline {
+  flex: 1;
+  position: relative;
+  height: 16px;
+  min-width: 60px;
+}
+.year-slider-inline .year-slider-track,
+.year-slider-inline .year-slider-track-active,
+.year-slider-inline input[type=range] {
+  position: absolute;
+  width: 100%;
+}
+.year-slider-inline .year-slider-track {
+  height: 3px;
+  background: var(--border2);
+  border-radius: 2px;
+  top: 50%; transform: translateY(-50%);
+}
+.year-slider-inline .year-slider-track-active {
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  top: 50%; transform: translateY(-50%);
+}
+.year-slider-inline input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 16px;
+  margin: 0;
+  pointer-events: none;
+}
+.year-slider-inline input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.year-slider-inline input[type=range]::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Pill d'ordre */
+.sort-pill { min-width: unset; }
+
+/* Reset — minimalista */
+.filter-reset-btn {
+  background: none;
+  border: none;
+  color: var(--border2);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.filter-reset-btn svg { width: 14px; height: 14px; }
+.filter-reset-btn:hover { color: var(--red); }
+
+/* Mòbil */
+@media (max-width: 599px) {
+  .filters-row-main { padding: 6px 8px; gap: 5px; }
+  .filter-pill { font-size: 0.72rem; padding: 5px 10px; }
+  .filter-year-pill { min-width: 120px; }
+  .year-pill-label { min-width: 60px; font-size: 0.7rem; }
+}

@@ -65,14 +65,25 @@ const App = (() => {
     document.getElementById('view-grid')?.addEventListener('click', () => Gallery.setView('grid'));
     document.getElementById('view-carousel')?.addEventListener('click', () => Gallery.setView('carousel'));
 
-    // Botons d'ordre
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        Gallery.setSort(btn.dataset.sort);
+    // Botó d'ordre cíclic
+    const sortModes = [
+      { key: 'year-asc',  label: 'Any ↑' },
+      { key: 'year-desc', label: 'Any ↓' },
+      { key: 'alpha-asc', label: 'A → Z' },
+      { key: 'alpha-desc',label: 'Z → A' },
+    ];
+    let _sortIdx = 0;
+    const sortBtn   = document.getElementById('btn-sort');
+    const sortLabel = document.getElementById('sort-label');
+    if (sortBtn) {
+      sortLabel.textContent = sortModes[0].label;
+      sortBtn.addEventListener('click', () => {
+        _sortIdx = (_sortIdx + 1) % sortModes.length;
+        sortLabel.textContent = sortModes[_sortIdx].label;
+        sortBtn.classList.toggle('active', _sortIdx > 0);
+        Gallery.setSort(sortModes[_sortIdx].key);
       });
-    });
+    }
 
     // Toggle tema clar/fosc
     const savedTheme = localStorage.getItem('anna40_theme') || 'light';

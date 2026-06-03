@@ -115,6 +115,8 @@ const Gallery = (() => {
       }
       lbl.textContent = txt;
       btn?.classList.toggle('active', active);
+      const chevron = btn?.querySelector('.chevron');
+      if (chevron) chevron.style.transform = active ? 'rotate(180deg)' : '';
     });
   }
 
@@ -128,7 +130,7 @@ const Gallery = (() => {
   }
 
   function _bindFilterEvents() {
-    document.querySelectorAll('.filter-icon-btn').forEach(btn => {
+    document.querySelectorAll('.filter-pill[data-filter]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const key = btn.dataset.filter;
