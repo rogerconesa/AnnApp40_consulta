@@ -2132,3 +2132,143 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   .videos-controls { flex-direction: column; }
   .videos-playall-btn { width: 100%; }
 }
+
+/* ============================================
+   FILTRES — PERSIANA MODERNA AMB ICONES
+   ============================================ */
+.filter-icons-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filter-icons-row::-webkit-scrollbar { display: none; }
+
+.filter-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 6px 10px;
+  min-width: 56px;
+  transition: var(--transition);
+  white-space: nowrap;
+  font-family: var(--font);
+}
+.filter-icon-btn:hover { border-color: var(--accent); background: var(--accent-dim,rgba(10,132,255,0.08)); }
+.filter-icon-btn.active { background: var(--accent); border-color: var(--accent); }
+.filter-icon-btn.active .filter-icon-label { color: #fff; }
+.filter-icon-btn.active .filter-icon-emoji { filter: brightness(10); }
+
+.filter-icon-emoji { font-size: 1.1rem; line-height: 1; }
+.filter-icon-label { font-size: 0.62rem; font-weight: 600; color: var(--text-muted); max-width: 60px; overflow: hidden; text-overflow: ellipsis; }
+
+.filter-year-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px 10px;
+  min-width: 56px;
+}
+.filter-year-icon .filter-icon-label { font-size: 0.62rem; color: var(--text-muted); font-weight: 600; }
+
+.filter-reset-btn {
+  background: none;
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 50%;
+  color: var(--red);
+  cursor: pointer;
+  font-size: 0.75rem;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+  margin-left: 2px;
+}
+.filter-reset-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* Persiana */
+.filter-drawer {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem 0.75rem;
+  animation: slideDown 0.2s ease both;
+}
+@keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+.filter-drawer-section {
+  display: none;
+}
+.filter-drawer-section.visible {
+  display: block;
+  padding-top: 0.6rem;
+}
+
+.filter-search-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  transition: var(--transition);
+}
+.filter-search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim,rgba(10,132,255,0.1)); }
+
+.filter-options-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.drawer-opt {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  color: var(--text2,var(--text));
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 5px 13px;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.drawer-opt:hover { border-color: var(--accent); color: var(--accent); }
+.drawer-opt.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.filter-drawer-year { padding-top: 0.6rem; }
+.filter-drawer-year-label { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.5rem; }
+
+/* Video card thumbnail */
+.video-card-thumb { position: relative; }
+.video-card-play-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.3);
+  color: #fff;
+  font-size: 2.2rem;
+  opacity: 0;
+  transition: var(--transition);
+}
+.video-card:hover .video-card-play-icon { opacity: 1; }

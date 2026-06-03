@@ -127,17 +127,13 @@ const MapView = (() => {
         content: pin,
       });
 
-      // Popup personalitzat amb miniatura
-      const infoWindow = new google.maps.InfoWindow({
-        content: _buildPopup(group),
-        pixelOffset: new google.maps.Size(0, -10),
-      });
-
-      let _openInfo = null;
+      // Clic al marker: 1 foto → lightbox directe | múltiples → carrussel del cluster
       marker.addListener('gmp-click', () => {
-        if (_openInfo) _openInfo.close();
-        _openInfo = infoWindow;
-        infoWindow.open({ map: _map, anchor: marker });
+        if (group.photos.length === 1) {
+          Gallery.openLightbox(group.photos[0]);
+        } else {
+          _openClusterCarousel(group);
+        }
       });
       _markers.push(marker);
       bounds.extend({ lat: group.lat, lng: group.lng });
@@ -150,36 +146,47 @@ const MapView = (() => {
     }
   }
 
-  function _buildPopup(group) {
-    const photo = group.photos[0];
-    const more  = group.photos.length > 1 ? `<div style="font-size:11px;color:#666;margin-top:4px">+${group.photos.length - 1} foto${group.photos.length > 2 ? 's' : ''} més</div>` : '';
-    const thumb = photo.url ? `<img src="${photo.url}" style="width:160px;height:120px;object-fit:cover;border-radius:8px;display:block;cursor:pointer" id="map-popup-img" />` : `<div style="width:160px;height:120px;background:#eee;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2rem">🖼️</div>`;
+  function _openClusterCarousel(group) {
+    // Crea un modal temporal de carrussel per les fotos del cluster
+    let existing = document.getElementById('map-cluster-modal');
+    if (existing) existing.remove();
 
-    const html = `
-      <div style="font-family:-apple-system,sans-serif;padding:2px;min-width:160px">
-        <div id="map-popup-thumb" style="cursor:pointer">${thumb}</div>
-        <div style="margin-top:8px">
-          <div style="font-weight:600;font-size:13px;color:#111">${group.lloc}</div>
-          <div style="font-size:12px;color:#888;margin-top:1px">${photo.any || ''}${photo.any && group.photos.length > 1 ? ' · ' : ''}${group.photos.length > 1 ? group.photos.length + ' fotos' : ''}</div>
-          ${more}
+    let idx = 0;
+    const photos = group.photos;
+
+    const modal = document.createElement('div');
+    modal.id = 'map-cluster-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:1rem';
+
+    const render = () => {
+      const p = photos[idx];
+      modal.innerHTML = `
+        <div style="position:relative;max-width:500px;width:100%;background:var(--bg2);border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
+          <button id="cmc-close" style="position:absolute;top:10px;right:12px;background:rgba(0,0,0,0.5);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;z-index:10">✕</button>
+          <img src="${p.url}" style="width:100%;max-height:60dvh;object-fit:contain;background:#000;display:block" />
+          <div style="padding:14px 16px">
+            <div style="font-weight:700;font-size:1rem">${p.lloc || ''}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-top:3px">${p.any || ''} · ${p.persones.join(', ') || ''}</div>
+            ${p.notes ? `<div style="font-size:0.82rem;font-style:italic;margin-top:6px;color:var(--text-muted)">"${p.notes}"</div>` : ''}
+          </div>
+          ${photos.length > 1 ? `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 14px;gap:8px">
+            <button id="cmc-prev" style="flex:1;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font)" ${idx === 0 ? 'disabled' : ''}>‹ Anterior</button>
+            <span style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap">${idx + 1} / ${photos.length}</span>
+            <button id="cmc-next" style="flex:1;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font)" ${idx === photos.length - 1 ? 'disabled' : ''}>Següent ›</button>
+          </div>` : ''}
         </div>
-      </div>`;
-    return html;
+      `;
+      document.getElementById('cmc-close').onclick = () => modal.remove();
+      document.getElementById('cmc-prev')?.addEventListener('click', () => { if (idx > 0) { idx--; render(); } });
+      document.getElementById('cmc-next')?.addEventListener('click', () => { if (idx < photos.length - 1) { idx++; render(); } });
+    };
+    render();
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
   }
 
-  // Listener global per al clic al popup (delegació d'events)
-  document.addEventListener('click', (e) => {
-    if (e.target.id === 'map-popup-img' || e.target.id === 'map-popup-thumb' || e.target.closest('#map-popup-thumb')) {
-      // Trobar el grup corresponent i obrir lightbox
-      const img = e.target.closest('#map-popup-thumb')?.querySelector('img');
-      if (!img) return;
-      const src = img.src;
-      // Buscar la foto per URL
-      const allPhotos = Gallery.getFiltered ? Gallery.getFiltered() : [];
-      const photo = allPhotos.find(p => p.url === src);
-      if (photo) Gallery.openLightbox(photo);
-    }
-  });
+  function _buildPopup() { return ''; }
 
   return { init, updatePhotos };
 })();

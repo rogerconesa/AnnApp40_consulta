@@ -155,14 +155,18 @@ const App = (() => {
     }
     if (empty) empty.classList.add('hidden');
 
-    // Graella de miniatures (com les fotos)
+    // Graella de miniatures amb thumbnails reals del Drive
     _videosList.forEach((video, idx) => {
+      const thumbUrl = `https://drive.google.com/thumbnail?id=${video.fileId}&sz=w400`;
       const card = document.createElement('div');
       card.className = 'video-card';
       card.innerHTML = `
-        <div class="video-card-thumb">
-          <div class="video-card-play">▶</div>
-          🎬
+        <div class="video-card-thumb" style="background:#000">
+          <img src="${thumbUrl}" style="width:100%;height:100%;object-fit:cover;display:block"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            loading="lazy" />
+          <div class="video-card-play" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;font-size:2rem">🎬</div>
+          <div class="video-card-play-icon">▶</div>
         </div>
         <div class="video-card-info">
           <div class="video-card-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
@@ -175,28 +179,35 @@ const App = (() => {
     });
   }
 
-  // ── Reproductor de vídeo (modal carrussel) ───
+  let _autoAdvanceTimer = null;
+
   function _openVideoPlayer(startIdx, shuffle) {
     let list = [..._videosList];
     if (shuffle) {
-      // Barreja aleatòria
       for (let i = list.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [list[i], list[j]] = [list[j], list[i]];
       }
     }
     let idx = shuffle ? 0 : startIdx;
+    if (_autoAdvanceTimer) clearInterval(_autoAdvanceTimer);
 
     const overlay = document.getElementById('videos-carousel');
     overlay.classList.remove('hidden');
     document.getElementById('videos-grid').classList.add('hidden');
 
     const render = () => {
+      if (_autoAdvanceTimer) clearInterval(_autoAdvanceTimer);
       const video = list[idx];
       const previewUrl = `https://drive.google.com/file/d/${video.fileId}/preview`;
+      const thumbUrl   = `https://drive.google.com/thumbnail?id=${video.fileId}&sz=w600`;
+
       overlay.innerHTML = `
         <div class="vplayer">
-          <button class="vplayer-close" id="vplayer-close">✕ Tornar</button>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem">
+            <button class="vplayer-close" id="vplayer-close">← Tornar</button>
+            ${shuffle && list.length > 1 ? `<span style="font-size:0.78rem;color:var(--text-muted)">Reproducció automàtica en 45s</span>` : ''}
+          </div>
           <div class="vplayer-frame">
             <iframe src="${previewUrl}" allow="autoplay; fullscreen" allowfullscreen
               style="width:100%;height:100%;border:0;border-radius:12px"></iframe>
@@ -210,19 +221,30 @@ const App = (() => {
           <div class="vplayer-nav">
             <button id="vplayer-prev" class="videos-nav-btn" ${idx === 0 ? 'disabled' : ''}>‹ Anterior</button>
             <span class="videos-counter">${idx + 1} / ${list.length}</span>
-            <button id="vplayer-next" class="videos-nav-btn" ${idx === list.length - 1 ? 'disabled' : ''}>Següent ›</button>
+            <button id="vplayer-next" class="videos-nav-btn">Següent ›</button>
           </div>` : ''}
         </div>
       `;
+
       document.getElementById('vplayer-close').onclick = () => {
+        if (_autoAdvanceTimer) clearInterval(_autoAdvanceTimer);
         overlay.classList.add('hidden');
         overlay.innerHTML = '';
         document.getElementById('videos-grid').classList.remove('hidden');
       };
-      const prev = document.getElementById('vplayer-prev');
-      const next = document.getElementById('vplayer-next');
-      if (prev) prev.onclick = () => { if (idx > 0) { idx--; render(); } };
-      if (next) next.onclick = () => { if (idx < list.length - 1) { idx++; render(); } };
+
+      const goNext = () => {
+        if (idx < list.length - 1) { idx++; render(); }
+        else if (shuffle) { idx = 0; render(); } // loop en mode continu
+      };
+
+      document.getElementById('vplayer-prev')?.addEventListener('click', () => { if (idx > 0) { idx--; render(); } });
+      document.getElementById('vplayer-next')?.addEventListener('click', goNext);
+
+      // Auto-avanç en mode continu (45s per vídeo)
+      if (shuffle && list.length > 1) {
+        _autoAdvanceTimer = setInterval(goNext, 45000);
+      }
     };
     render();
   }
