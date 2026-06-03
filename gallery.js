@@ -391,7 +391,7 @@ Si no en trobes: {"ids": []}`;
   function apply() {
     _filteredPhotos = _allPhotos.filter(p => {
       if (_iaFilteredIds !== null && !_iaFilteredIds.includes(p.fileId)) return false;
-      if (_filters.persona.length   && !_filters.persona.some(f => p.persones.includes(f)))    return false;
+      if (_filters.persona.length   && !_filters.persona.every(f => p.persones.includes(f)))   return false;
       if (_filters.categoria.length && !_filters.categoria.some(f => p.categoria.includes(f))) return false;
       if (_filters.lloc  && p.lloc !== _filters.lloc)      return false;
       if (_filters.qui   && p.pujatNom !== _filters.qui)   return false;
@@ -406,6 +406,21 @@ Si no en trobes: {"ids": []}`;
     _renderCarousels();
     _renderPreferides();
     if (typeof MapView !== 'undefined') MapView.updatePhotos(_filteredPhotos);
+  }
+
+  // ── Ordre ─────────────────────────────────────
+  let _sortMode = 'year-asc';
+
+  function _sortPhotos(arr) {
+    return [...arr].sort((a, b) => {
+      switch (_sortMode) {
+        case 'year-asc':   return (parseInt(a.any) || 9999) - (parseInt(b.any) || 9999);
+        case 'year-desc':  return (parseInt(b.any) || 0)    - (parseInt(a.any) || 0);
+        case 'alpha-asc':  return (a.lloc || '').localeCompare(b.lloc || '', 'ca');
+        case 'alpha-desc': return (b.lloc || '').localeCompare(a.lloc || '', 'ca');
+        default:           return 0;
+      }
+    });
   }
 
   // ── Vista (graella / carrussel) ──────────────
@@ -485,13 +500,11 @@ Si no en trobes: {"ids": []}`;
     if (_filteredPhotos.length === 0) { empty.classList.remove('hidden'); return; }
     empty.classList.add('hidden');
 
-    const ordered = [..._filteredPhotos].sort((a, b) => {
-      if (a.preferida && !b.preferida) return -1;
-      if (!a.preferida && b.preferida) return 1;
-      return parseInt(b.any || 0) - parseInt(a.any || 0);
-    });
+    const ordered = _sortPhotos(_filteredPhotos.filter(p => p.tipus !== 'video'));
+    const videos  = _filteredPhotos.filter(p => p.tipus === 'video');
+    const all     = [...ordered, ...videos];
 
-    ordered.forEach(photo => {
+    all.forEach(photo => {
       const isVideo = photo.tipus === 'video';
       const fid = photo.fileId;
       const card = document.createElement('div');
@@ -518,7 +531,8 @@ Si no en trobes: {"ids": []}`;
   function _renderPreferides() {
     const section = document.getElementById('preferides-section');
     const scroll  = document.getElementById('preferides-scroll');
-    const prefs   = _filteredPhotos.filter(p => p.preferida && p.tipus !== 'video');
+    const prefs = [..._filteredPhotos.filter(p => p.preferida && p.tipus !== 'video')]
+      .sort((a, b) => (parseInt(a.any) || 9999) - (parseInt(b.any) || 9999));
 
     if (prefs.length === 0) { section.classList.add('hidden'); return; }
     section.classList.remove('hidden');
@@ -599,5 +613,5 @@ Si no en trobes: {"ids": []}`;
     if (idx < _filteredPhotos.length - 1) openLightbox(_filteredPhotos[idx + 1]);
   }
 
-  return { init, updatePhotos, apply, openLightbox, closeLightbox, setView, getFiltered: () => _filteredPhotos, getAllPhotos: () => _allPhotos, getCurrentLightboxPhoto: () => _lightboxPhoto };
+  return { init, updatePhotos, apply, openLightbox, closeLightbox, setView, setSort: (mode) => { _sortMode = mode; apply(); }, getFiltered: () => _filteredPhotos, getAllPhotos: () => _allPhotos, getCurrentLightboxPhoto: () => _lightboxPhoto };
 })();

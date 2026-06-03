@@ -2325,3 +2325,95 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   .filter-year-bar-label { font-size: 0.75rem; min-width: 70px; }
   .filter-year-bar { gap: 6px; }
 }
+
+/* ============================================
+   NAV AMB ICONES SVG MODERNES
+   ============================================ */
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  margin: 0 auto 2px;
+  flex-shrink: 0;
+}
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.nav-tab span { font-size: 0.65rem; }
+
+/* Toggle tema */
+.btn-theme-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
+}
+.btn-theme-toggle:hover { color: var(--accent); }
+.theme-icon { width: 18px; height: 18px; }
+
+/* ============================================
+   BOTONS D'ORDRE
+   ============================================ */
+.gallery-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-toggle {
+  display: flex;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.sort-btn {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.sort-btn:hover { color: var(--accent); }
+.sort-btn.active { background: var(--accent); color: #fff; }
+
+/* ============================================
+   BOTÓ RESET — MOLT DISCRET
+   ============================================ */
+.filter-reset-btn {
+  background: none;
+  border: none;
+  color: rgba(239,68,68,0.4);
+  cursor: pointer;
+  font-size: 0.7rem;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: var(--transition);
+  margin-left: 2px;
+}
+.filter-reset-btn:hover { color: var(--red); background: rgba(239,68,68,0.08); }
+
+@media (max-width: 599px) {
+  .sort-btn { font-size: 0.65rem; padding: 3px 6px; }
+  .nav-tab span { display: none; }
+  .nav-icon { width: 20px; height: 20px; margin: 0; }
+  .nav-tab { padding: 6px 10px; }
+}

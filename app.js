@@ -65,6 +65,33 @@ const App = (() => {
     document.getElementById('view-grid')?.addEventListener('click', () => Gallery.setView('grid'));
     document.getElementById('view-carousel')?.addEventListener('click', () => Gallery.setView('carousel'));
 
+    // Botons d'ordre
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        Gallery.setSort(btn.dataset.sort);
+      });
+    });
+
+    // Toggle tema clar/fosc
+    const savedTheme = localStorage.getItem('anna40_theme') || 'light';
+    document.documentElement.dataset.theme = savedTheme;
+    _updateThemeIcon(savedTheme);
+
+    document.getElementById('btn-theme')?.addEventListener('click', () => {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      const next   = isDark ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem('anna40_theme', next);
+      _updateThemeIcon(next);
+    });
+
+    function _updateThemeIcon(theme) {
+      document.getElementById('theme-icon-sun')?.classList.toggle('hidden', theme === 'light');
+      document.getElementById('theme-icon-moon')?.classList.toggle('hidden', theme === 'dark');
+    }
+
     // Botó editar del lightbox
     document.getElementById('lightbox-edit')?.addEventListener('click', () => {
       const photo = Gallery.getCurrentLightboxPhoto();
