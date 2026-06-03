@@ -20,8 +20,10 @@ const UI = (() => {
   }
 
   function setUser(profile, isAdmin) {
-    document.getElementById('user-avatar').src = profile.picture || '';
-    document.getElementById('user-name').textContent = profile.name || profile.email;
+    const avatar = document.getElementById('user-avatar');
+    const name   = document.getElementById('user-name');
+    if (avatar) avatar.src = profile.picture || '';
+    if (name)   name.textContent = profile.name || profile.email;
     const adminTab = document.getElementById('tab-btn-admin');
     if (adminTab) adminTab.style.display = isAdmin ? 'flex' : 'none';
   }
