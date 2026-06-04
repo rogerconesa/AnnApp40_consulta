@@ -3302,3 +3302,132 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   color: var(--text-muted);
   text-align: center;
 }
+
+/* ============================================================
+   FILTERS DEFINITIU — sobreescriu tots els blocs anteriors
+   ============================================================ */
+
+/* MÒBIL (≤599px): grid de 5 columnes iguals, tot l'ample */
+@media screen and (max-width: 599px) {
+  .filters-row-main {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    overflow: visible !important;
+    padding: 6px 8px !important;
+    gap: 4px !important;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filters-row-main .filter-pill,
+  .filters-row-main #btn-reset-filters {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 8px 2px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    cursor: pointer;
+    font-family: var(--font);
+  }
+
+  /* Icona */
+  .filters-row-main .filter-pill svg:not(.chevron),
+  .filters-row-main #btn-reset-filters svg {
+    width: 22px !important;
+    height: 22px !important;
+    display: block !important;
+    flex-shrink: 0;
+    stroke: var(--text-muted);
+  }
+
+  /* Chevron ocult */
+  .filters-row-main .filter-pill .chevron { display: none !important; }
+
+  /* Text inline ocult (span) */
+  .filters-row-main .filter-pill > span:not(.year-pill-label) {
+    display: none !important;
+  }
+
+  /* Text sota icona via pseudo-element */
+  .filters-row-main .filter-pill[data-filter="persona"]::after  { content: 'Persona'; }
+  .filters-row-main .filter-pill[data-filter="lloc"]::after     { content: 'Lloc'; }
+  .filters-row-main .filter-pill[data-filter="categoria"]::after{ content: 'Cat.'; }
+  .filters-row-main .filter-pill[data-filter="qui"]::after      { content: 'Qui'; }
+  .filters-row-main #btn-reset-filters::after                   { content: 'Netejar'; }
+
+  .filters-row-main .filter-pill::after,
+  .filters-row-main #btn-reset-filters::after {
+    font-size: 0.58rem !important;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* Estat actiu */
+  .filters-row-main .filter-pill.active {
+    background: var(--accent) !important;
+    border-radius: 10px !important;
+  }
+  .filters-row-main .filter-pill.active svg { stroke: #fff !important; }
+  .filters-row-main .filter-pill.active::after { color: #fff !important; }
+
+  /* Reset: color vermell subtil */
+  .filters-row-main #btn-reset-filters svg { stroke: rgba(239,68,68,0.45) !important; }
+  .filters-row-main #btn-reset-filters::after { color: rgba(239,68,68,0.45) !important; }
+  .filters-row-main #btn-reset-filters:hover svg { stroke: var(--red) !important; }
+  .filters-row-main #btn-reset-filters:hover::after { color: var(--red) !important; }
+
+  /* SLIDER: fila separada, ample complet */
+  .filters-row-secondary {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 12px 10px !important;
+  }
+  .filters-row-secondary .filter-year-pill {
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 9px 14px !important;
+    background: var(--bg2) !important;
+    border: 1.5px solid var(--border2) !important;
+    border-radius: 99px !important;
+    cursor: default;
+  }
+  .filters-row-secondary .year-slider-inline {
+    flex: 1 !important;
+    min-width: 50px !important;
+  }
+  .filters-row-secondary .year-pill-label {
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    color: var(--text) !important;
+  }
+  .filters-row-secondary .filter-year-pill svg {
+    width: 16px !important; height: 16px !important;
+    flex-shrink: 0;
+  }
+  /* Sort pill al costat del slider */
+  .filters-row-secondary .sort-pill {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 9px 12px !important;
+    font-size: 0.8rem !important;
+    background: var(--bg2) !important;
+    border: 1.5px solid var(--border2) !important;
+    border-radius: 99px !important;
+  }
+  .filters-row-secondary .sort-pill svg { width: 14px !important; height: 14px !important; }
+}
