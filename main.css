@@ -3141,9 +3141,9 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
 /* ============================================
    LOGIN MILLORAT
    ============================================ */
-#screen-login {
+#screen-login.active {
   min-height: 100dvh;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   background:
