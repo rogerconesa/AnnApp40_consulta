@@ -538,6 +538,7 @@ Si no en trobes: {"ids": []}`;
     section.classList.remove('hidden');
 
     scroll.innerHTML = '';
+    _highlightedPhotos = prefs;
     prefs.forEach(photo => {
       const card = document.createElement('div');
       card.className = 'preferida-card';
@@ -545,7 +546,7 @@ Si no en trobes: {"ids": []}`;
         <img src="${photo.url}" alt="${photo.lloc}" loading="lazy" />
         <div class="preferida-card-badge">⭐</div>
       `;
-      card.addEventListener('click', () => openLightbox(photo));
+      card.addEventListener('click', () => openLightbox(photo, 'highlights'));
       scroll.appendChild(card);
     });
   }
@@ -559,6 +560,18 @@ Si no en trobes: {"ids": []}`;
     document.getElementById('lightbox-prev').addEventListener('click', _prevPhoto);
     document.getElementById('lightbox-next').addEventListener('click', _nextPhoto);
 
+    // Swipe tàctil al lightbox
+    let _lbStartX = 0;
+    const lbOverlay = document.getElementById('lightbox-overlay');
+    lbOverlay?.addEventListener('touchstart', e => { _lbStartX = e.touches[0].clientX; }, { passive: true });
+    lbOverlay?.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - _lbStartX;
+      if (Math.abs(dx) > 40) {
+        if (dx < 0) _nextPhoto();
+        else         _prevPhoto();
+      }
+    }, { passive: true });
+
     document.addEventListener('keydown', (e) => {
       if (!document.getElementById('lightbox-overlay').classList.contains('hidden')) {
         if (e.key === 'Escape') closeLightbox();
@@ -568,8 +581,17 @@ Si no en trobes: {"ids": []}`;
     });
   }
 
-  function openLightbox(photo) {
-    _lightboxPhoto = photo;
+  // Context del lightbox: llista de fotos per navegar
+  let _lightboxContext = 'all';
+  let _highlightedPhotos = [];
+
+  function _getContextPhotos() {
+    return _lightboxContext === 'highlights' ? _highlightedPhotos : _filteredPhotos;
+  }
+
+  function openLightbox(photo, context) {
+    _lightboxPhoto   = photo;
+    _lightboxContext = context || 'all';
     const isVideo = photo.tipus === 'video';
 
     const img = document.getElementById('lightbox-img');
@@ -604,13 +626,15 @@ Si no en trobes: {"ids": []}`;
   }
 
   function _prevPhoto() {
-    const idx = _filteredPhotos.findIndex(p => p.fileId === _lightboxPhoto?.fileId);
-    if (idx > 0) openLightbox(_filteredPhotos[idx - 1]);
+    const list = _getContextPhotos();
+    const idx  = list.findIndex(p => p.fileId === _lightboxPhoto?.fileId);
+    if (idx > 0) openLightbox(list[idx - 1], _lightboxContext);
   }
 
   function _nextPhoto() {
-    const idx = _filteredPhotos.findIndex(p => p.fileId === _lightboxPhoto?.fileId);
-    if (idx < _filteredPhotos.length - 1) openLightbox(_filteredPhotos[idx + 1]);
+    const list = _getContextPhotos();
+    const idx  = list.findIndex(p => p.fileId === _lightboxPhoto?.fileId);
+    if (idx < list.length - 1) openLightbox(list[idx + 1], _lightboxContext);
   }
 
   return { init, updatePhotos, apply, openLightbox, closeLightbox, setView, setSort: (mode) => { _sortMode = mode; apply(); }, getFiltered: () => _filteredPhotos, getAllPhotos: () => _allPhotos, getCurrentLightboxPhoto: () => _lightboxPhoto };

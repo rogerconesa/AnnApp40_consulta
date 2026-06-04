@@ -116,6 +116,15 @@ const App = (() => {
       startAutoplay(Gallery.getFiltered ? Gallery.getFiltered() : []);
     });
 
+    // Botó sort al costat d'autoplay (mòbil)
+    document.getElementById('btn-sort-meta')?.addEventListener('click', () => {
+      // Sincronitzar amb el sort-pill principal
+      document.getElementById('btn-sort')?.click();
+      const lbl = document.getElementById('sort-label');
+      const lblMeta = document.getElementById('sort-label-meta');
+      if (lblMeta && lbl) lblMeta.textContent = lbl.textContent;
+    });
+
     // Detectar scroll final de la fila de filtres (treure degradat)
     const filterRow = document.querySelector('.filters-row-main');
     if (filterRow) {
@@ -137,10 +146,16 @@ const App = (() => {
     const sortLabel = document.getElementById('sort-label');
     if (sortBtn) {
       sortLabel.textContent = sortModes[0].label;
+      const updateSortLabel = (label) => {
+        sortLabel.textContent = label;
+        const ml = document.getElementById('sort-label-meta');
+        if (ml) ml.textContent = label;
+      };
       sortBtn.addEventListener('click', () => {
         _sortIdx = (_sortIdx + 1) % sortModes.length;
-        sortLabel.textContent = sortModes[_sortIdx].label;
+        updateSortLabel(sortModes[_sortIdx].label);
         sortBtn.classList.toggle('active', _sortIdx > 0);
+        document.getElementById('btn-sort-meta')?.classList.toggle('active', _sortIdx > 0);
         Gallery.setSort(sortModes[_sortIdx].key);
       });
     }

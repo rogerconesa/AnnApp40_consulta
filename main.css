@@ -2839,3 +2839,31 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
 }
 .autoplay-btn:hover { opacity: 0.85; }
 .autoplay-btn:active { opacity: 0.7; }
+
+/* ============================================
+   MÒBIL: pills icona sola, slider ample
+   ============================================ */
+@media (max-width: 599px) {
+  /* Pills: NOMÉS icona */
+  .filter-pill > span:not(.year-pill-label),
+  .filter-pill .chevron { display: none !important; }
+  .filter-pill { padding: 9px 11px; min-width: 0; justify-content: center; }
+  .filter-pill svg:not(.chevron) { width: 19px; height: 19px; }
+
+  /* Fila 2: slider ocupa tot l'ample, sort a la seva fila */
+  .filters-row-secondary {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .filters-row-secondary .filter-year-pill {
+    flex: 1 1 100%;  /* ample complet */
+    max-width: 100%;
+    min-width: 0;
+  }
+  .filters-row-secondary .sort-pill { display: none; } /* es mou al gallery-meta */
+}
+
+/* Desktop: mostra text als pills */
+@media (min-width: 600px) {
+  .filters-row-secondary .sort-pill-meta { display: none; } /* botó sort al gallery-meta ocult en desktop */
+}
