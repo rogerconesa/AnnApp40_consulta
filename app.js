@@ -31,9 +31,12 @@ const App = (() => {
         if (!isPassword) initAdmin();
         initDia();
 
-        // Amagar botó editar en mode password
+        // Botó editar: visible si NO és mode password
         const editBtn = document.getElementById('lightbox-edit');
-        if (editBtn) editBtn.style.display = isPassword ? 'none' : '';
+        if (editBtn) {
+          editBtn.style.display = isPassword ? 'none' : '';
+          editBtn.title = isAdmin ? 'Editar foto (admin)' : 'Editar foto';
+        }
       },
       () => UI.showScreen('screen-login')
     );
@@ -368,10 +371,10 @@ const App = (() => {
           </div>
           <div class="vplayer-frame" id="vplayer-frame-${idx}" style="position:relative">
             <iframe id="vplayer-iframe-${idx}" src="${previewUrl}" allow="autoplay; fullscreen" allowfullscreen
-              style="width:100%;height:100%;border:0;border-radius:12px;opacity:0;transition:opacity 0.4s"></iframe>
-            <div class="vplayer-poster" id="vplayer-poster-${idx}"
-              style="background-image:url('${thumbUrl}')">
-              <div class="vplayer-poster-icon">
+              style="width:100%;height:100%;border:0;border-radius:12px;display:block"></iframe>
+            <div class="vplayer-cover" id="vplayer-cover-${idx}">
+              <div class="vplayer-cover-thumb" style="background-image:url('${thumbUrl}')"></div>
+              <div class="vplayer-cover-icon">
                 <div class="vplayer-loading-ring"></div>
                 <span>▶</span>
               </div>
@@ -398,18 +401,23 @@ const App = (() => {
         document.getElementById('videos-grid').classList.remove('hidden');
       };
 
-      // L'iframe ja carrega en segon pla (amagat).
-      // Als 3.5s Drive ha acabat el loading gris → mostrem l'iframe i amaguem el poster
-      const poster = document.getElementById(`vplayer-poster-${idx}`);
+      // Coberta negra opaca sobre l'iframe fins que Drive acabi de carregar
+      const cover  = document.getElementById(`vplayer-cover-${idx}`);
       const iframe = document.getElementById(`vplayer-iframe-${idx}`);
-      const revealVideo = () => {
-        if (iframe) iframe.style.opacity = '1';
-        if (poster) poster.classList.add('fade-out');
-        setTimeout(() => poster?.remove(), 700);
+      const removeCover = () => {
+        if (!cover) return;
+        cover.style.opacity = '0';
+        cover.style.pointerEvents = 'none';
+        setTimeout(() => cover?.remove(), 600);
       };
-      // Revelar als 3.5s, o immediatament si l'usuari clica el poster
-      const revealTimer = setTimeout(revealVideo, 3500);
-      if (poster) poster.addEventListener('click', () => { clearTimeout(revealTimer); revealVideo(); });
+      // Intentar detectar quan Drive ha acabat de carregar
+      if (iframe) {
+        iframe.addEventListener('load', () => setTimeout(removeCover, 800));
+      }
+      // Fallback: eliminar la coberta als 4s tant si i com no
+      const coverTimer = setTimeout(removeCover, 4000);
+      // Permetre clicar la coberta per eliminar-la manualment
+      if (cover) cover.addEventListener('click', () => { clearTimeout(coverTimer); removeCover(); });
 
       const goNext = () => {
         if (idx < list.length - 1) { idx++; render(); }

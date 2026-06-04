@@ -562,13 +562,32 @@ Si no en trobes: {"ids": []}`;
     document.getElementById('lightbox-prev').addEventListener('click', _prevPhoto);
     document.getElementById('lightbox-next').addEventListener('click', _nextPhoto);
 
-    // Swipe tàctil al lightbox
-    let _lbStartX = 0;
+    // Swipe al lightbox — bloquejar navegació del browser i distingir pinch de swipe
+    let _lbStartX = 0, _lbStartY = 0, _lbIsPinch = false;
     const lbOverlay = document.getElementById('lightbox-overlay');
-    lbOverlay?.addEventListener('touchstart', e => { _lbStartX = e.touches[0].clientX; }, { passive: true });
+
+    lbOverlay?.addEventListener('touchstart', e => {
+      _lbIsPinch = e.touches.length > 1; // dos dits = pinch, no swipe
+      if (!_lbIsPinch) {
+        _lbStartX = e.touches[0].clientX;
+        _lbStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    lbOverlay?.addEventListener('touchmove', e => {
+      if (_lbIsPinch) return; // permetre pinch-zoom natiu
+      // Bloquejar pan horitzontal per evitar que iOS surti de la pàgina
+      const dx = e.touches[0].clientX - _lbStartX;
+      const dy = e.touches[0].clientY - _lbStartY;
+      if (Math.abs(dx) > Math.abs(dy)) e.preventDefault();
+    }, { passive: false });
+
     lbOverlay?.addEventListener('touchend', e => {
+      if (_lbIsPinch || e.changedTouches.length > 1) return;
       const dx = e.changedTouches[0].clientX - _lbStartX;
-      if (Math.abs(dx) > 40) {
+      const dy = e.changedTouches[0].clientY - _lbStartY;
+      // Swipe vàlid: horitzontal dominant (ratio 2:1) i mínim 50px
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 2) {
         if (dx < 0) _nextPhoto();
         else         _prevPhoto();
       }

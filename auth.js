@@ -8,14 +8,15 @@ const Auth = (() => {
   let _userProfile      = null;
   let _onLoginCallback  = null;
   let _onLogoutCallback = null;
-  let _mode             = null; // 'google' | 'password'
+  let _mode             = null;
+  let _refreshTimer     = null;
 
   // ── Inicialització ────────────────────────────
   function init(onLogin, onLogout) {
     _onLoginCallback  = onLogin;
     _onLogoutCallback = onLogout;
 
-    // Restaurar sessió de password
+    // Mode password
     if (sessionStorage.getItem('anna40_auth') === 'password') {
       _mode = 'password';
       _userProfile = { name: 'Convidada', email: '', picture: '' };
@@ -23,18 +24,20 @@ const Auth = (() => {
       return;
     }
 
-    // Restaurar sessió de Google
+    // Esperar Google script
     if (typeof google === 'undefined' || !google.accounts) {
       setTimeout(() => init(onLogin, onLogout), 200);
       return;
     }
     _initGoogleClient();
 
-    const saved = sessionStorage.getItem('anna40_token');
+    // Token guardat (localStorage sobreviu a refresh)
+    const saved = localStorage.getItem('anna40_token') || sessionStorage.getItem('anna40_token');
     if (saved) {
       _accessToken = saved;
       _mode = 'google';
-      _loadUserProfile();
+      // Silent refresh per validar/renovar el token sense popup
+      refreshToken().then(() => _loadUserProfile()).catch(() => _loadUserProfile());
     }
   }
 
@@ -69,10 +72,11 @@ const Auth = (() => {
     if (_mode === 'google' && _accessToken) {
       google.accounts.oauth2.revoke(_accessToken, () => {});
     }
+    if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
     _accessToken = null;
     _userProfile = null;
     _mode        = null;
-    sessionStorage.removeItem('anna40_token');
+    localStorage.removeItem('anna40_token'); sessionStorage.removeItem('anna40_token');
     sessionStorage.removeItem('anna40_auth');
     if (_onLogoutCallback) _onLogoutCallback();
   }
@@ -84,9 +88,15 @@ const Auth = (() => {
     }
     _accessToken = resp.access_token;
     _mode        = 'google';
-    sessionStorage.setItem('anna40_token', _accessToken);
+    localStorage.setItem('anna40_token', _accessToken); sessionStorage.setItem('anna40_token', _accessToken);
     sessionStorage.setItem('anna40_auth', 'google');
     _loadUserProfile();
+
+    // Renovar el token automàticament cada 50 minuts (expira als 60m)
+    if (_refreshTimer) clearInterval(_refreshTimer);
+    _refreshTimer = setInterval(() => {
+      refreshToken().catch(err => console.warn('Silent refresh failed:', err));
+    }, 50 * 60 * 1000);
   }
 
   async function _loadUserProfile() {
@@ -96,7 +106,7 @@ const Auth = (() => {
       });
       if (!res.ok) {
         _accessToken = null;
-        sessionStorage.removeItem('anna40_token');
+        localStorage.removeItem('anna40_token'); sessionStorage.removeItem('anna40_token');
         return;
       }
       _userProfile = await res.json();
@@ -116,7 +126,7 @@ const Auth = (() => {
         _tokenClient.callback = orig;
         if (resp.error || !resp.access_token) { reject(new Error(resp.error)); return; }
         _accessToken = resp.access_token;
-        sessionStorage.setItem('anna40_token', _accessToken);
+        localStorage.setItem('anna40_token', _accessToken); sessionStorage.setItem('anna40_token', _accessToken);
         resolve(_accessToken);
       };
       _tokenClient.requestAccessToken({ prompt: '' });

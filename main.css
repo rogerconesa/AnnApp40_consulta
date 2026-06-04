@@ -808,3 +808,45 @@ body {
   opacity: 0;
   pointer-events: none;
 }
+
+/* ── Lightbox: permetre pinch-zoom a la imatge ── */
+#lightbox-overlay { touch-action: pan-y; }
+.lightbox-img-wrap img {
+  touch-action: pinch-zoom;
+  max-width: 100%;
+}
+/* Evitar rubber-band scroll horitzontal fora del lightbox */
+body { overscroll-behavior-x: none; }
+
+/* ── Video cover opac (substitueix poster) ── */
+.vplayer-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: opacity 0.6s ease;
+  cursor: pointer;
+}
+.vplayer-cover-thumb {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #000;
+}
+.vplayer-cover-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vplayer-cover-icon span {
+  position: absolute;
+  color: #fff;
+  font-size: 1.6rem;
+  padding-left: 4px;
+  z-index: 2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
