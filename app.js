@@ -356,8 +356,9 @@ const App = (() => {
     const render = () => {
       if (_autoAdvanceTimer) clearInterval(_autoAdvanceTimer);
       const video = list[idx];
-      const previewUrl = `https://drive.google.com/file/d/${video.fileId}/preview`;
-      const thumbUrl   = `https://drive.google.com/thumbnail?id=${video.fileId}&sz=w600`;
+      const previewUrl = `https://drive.google.com/file/d/${video.fileId}/preview?rm=minimal`;
+      const thumbUrl   = `https://drive.google.com/thumbnail?id=${video.fileId}&sz=w800`;
+      const hora       = video.timestamp ? new Date(video.timestamp).toLocaleTimeString('ca', { hour: '2-digit', minute: '2-digit' }) : '';
 
       overlay.innerHTML = `
         <div class="vplayer">
@@ -365,9 +366,11 @@ const App = (() => {
             <button class="vplayer-close" id="vplayer-close">← Tornar</button>
             ${shuffle && list.length > 1 ? `<span style="font-size:0.78rem;color:var(--text-muted)">Reproducció automàtica en 45s</span>` : ''}
           </div>
-          <div class="vplayer-frame">
-            <iframe src="${previewUrl}" allow="autoplay; fullscreen" allowfullscreen
-              style="width:100%;height:100%;border:0;border-radius:12px"></iframe>
+          <div class="vplayer-frame" id="vplayer-frame-${idx}">
+            <div class="vplayer-poster" id="vplayer-poster-${idx}"
+              style="background-image:url('${thumbUrl}')">
+              <div class="vplayer-poster-icon">▶</div>
+            </div>
           </div>
           <div class="vplayer-info">
             <div class="vplayer-author">${video.persones.join(', ') || video.pujatNom || 'Felicitació'}</div>
@@ -389,6 +392,24 @@ const App = (() => {
         overlay.innerHTML = '';
         document.getElementById('videos-grid').classList.remove('hidden');
       };
+
+      // Poster: quan es clica, carrega l'iframe i el vídeo comença des de 0
+      const poster = document.getElementById(`vplayer-poster-${idx}`);
+      if (poster) {
+        poster.addEventListener('click', () => {
+          const frame = document.getElementById(`vplayer-frame-${idx}`);
+          if (!frame) return;
+          poster.classList.add('fade-out');
+          // Crear iframe ara — el vídeo comença des del principi
+          const iframe = document.createElement('iframe');
+          iframe.src = previewUrl;
+          iframe.allow = 'autoplay; fullscreen';
+          iframe.allowFullscreen = true;
+          iframe.style.cssText = 'width:100%;height:100%;border:0;border-radius:12px;position:absolute;inset:0';
+          frame.appendChild(iframe);
+          setTimeout(() => poster.remove(), 700);
+        });
+      }
 
       const goNext = () => {
         if (idx < list.length - 1) { idx++; render(); }

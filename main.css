@@ -459,7 +459,7 @@ body {
 .vplayer { padding: 0 14px 2rem; }
 .vplayer-close { background: var(--bg3); border: 1px solid var(--border2); border-radius: 99px; color: var(--text); cursor: pointer; font-family: var(--font); font-size: 0.85rem; font-weight: 500; padding: 0.5rem 1.1rem; margin: 0 0 1rem; transition: var(--transition); }
 .vplayer-close:hover { border-color: var(--accent); color: var(--accent); }
-.vplayer-frame { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+.vplayer-frame { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); position: relative; }
 .vplayer-info { padding: 1rem 0.25rem 0; text-align: center; }
 .vplayer-author { font-size: 1.1rem; font-weight: 700; }
 .vplayer-cat { font-size: 0.85rem; color: var(--gold); margin-top: 3px; }
@@ -763,4 +763,34 @@ body {
 .regal-credits-roger {
   color: var(--gold);
   font-weight: 700;
+}
+
+/* ── Video poster — tapa la càrrega grisa de Drive ── */
+.vplayer-frame { position: relative; }
+.vplayer-poster {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.6s ease;
+  z-index: 5;
+}
+.vplayer-poster-icon {
+  width: 60px; height: 60px;
+  background: rgba(0,0,0,0.55);
+  border: 3px solid rgba(255,255,255,0.8);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.6rem;
+  padding-left: 4px;
+  backdrop-filter: blur(4px);
+}
+.vplayer-poster.fade-out {
+  opacity: 0;
+  pointer-events: none;
 }
