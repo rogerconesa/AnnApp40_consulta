@@ -781,14 +781,28 @@ body {
   z-index: 5;
 }
 .vplayer-poster-icon {
-  width: 60px; height: 60px;
-  background: rgba(0,0,0,0.55);
-  border: 3px solid rgba(255,255,255,0.8);
-  border-radius: 50%;
+  position: relative;
+  width: 64px; height: 64px;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 1.6rem;
+}
+.vplayer-poster-icon span {
+  position: absolute;
+  color: #fff;
+  font-size: 1.6rem;
   padding-left: 4px;
-  backdrop-filter: blur(4px);
+  z-index: 2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+.vplayer-loading-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
+  animation: ring-spin 1s linear infinite;
 }
 .vplayer-poster.fade-out {
   opacity: 0;

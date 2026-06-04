@@ -366,10 +366,15 @@ const App = (() => {
             <button class="vplayer-close" id="vplayer-close">← Tornar</button>
             ${shuffle && list.length > 1 ? `<span style="font-size:0.78rem;color:var(--text-muted)">Reproducció automàtica en 45s</span>` : ''}
           </div>
-          <div class="vplayer-frame" id="vplayer-frame-${idx}">
+          <div class="vplayer-frame" id="vplayer-frame-${idx}" style="position:relative">
+            <iframe id="vplayer-iframe-${idx}" src="${previewUrl}" allow="autoplay; fullscreen" allowfullscreen
+              style="width:100%;height:100%;border:0;border-radius:12px;opacity:0;transition:opacity 0.4s"></iframe>
             <div class="vplayer-poster" id="vplayer-poster-${idx}"
               style="background-image:url('${thumbUrl}')">
-              <div class="vplayer-poster-icon">▶</div>
+              <div class="vplayer-poster-icon">
+                <div class="vplayer-loading-ring"></div>
+                <span>▶</span>
+              </div>
             </div>
           </div>
           <div class="vplayer-info">
@@ -393,23 +398,18 @@ const App = (() => {
         document.getElementById('videos-grid').classList.remove('hidden');
       };
 
-      // Poster: quan es clica, carrega l'iframe i el vídeo comença des de 0
+      // L'iframe ja carrega en segon pla (amagat).
+      // Als 3.5s Drive ha acabat el loading gris → mostrem l'iframe i amaguem el poster
       const poster = document.getElementById(`vplayer-poster-${idx}`);
-      if (poster) {
-        poster.addEventListener('click', () => {
-          const frame = document.getElementById(`vplayer-frame-${idx}`);
-          if (!frame) return;
-          poster.classList.add('fade-out');
-          // Crear iframe ara — el vídeo comença des del principi
-          const iframe = document.createElement('iframe');
-          iframe.src = previewUrl;
-          iframe.allow = 'autoplay; fullscreen';
-          iframe.allowFullscreen = true;
-          iframe.style.cssText = 'width:100%;height:100%;border:0;border-radius:12px;position:absolute;inset:0';
-          frame.appendChild(iframe);
-          setTimeout(() => poster.remove(), 700);
-        });
-      }
+      const iframe = document.getElementById(`vplayer-iframe-${idx}`);
+      const revealVideo = () => {
+        if (iframe) iframe.style.opacity = '1';
+        if (poster) poster.classList.add('fade-out');
+        setTimeout(() => poster?.remove(), 700);
+      };
+      // Revelar als 3.5s, o immediatament si l'usuari clica el poster
+      const revealTimer = setTimeout(revealVideo, 3500);
+      if (poster) poster.addEventListener('click', () => { clearTimeout(revealTimer); revealVideo(); });
 
       const goNext = () => {
         if (idx < list.length - 1) { idx++; render(); }
