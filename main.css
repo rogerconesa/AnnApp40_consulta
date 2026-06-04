@@ -203,57 +203,59 @@ body {
    ============================================ */
 .filters-bar { background: var(--bg); border-bottom: 1px solid var(--border); }
 
-/* Línia 1: pills de filtre (icona+text, ample complet) */
+/* Línia 1: pills horitzontals scrollables (icona + text + chevron) */
 .filters-row-main {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: 8px 10px 6px;
-  gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
-.filter-pill {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; padding: 8px 4px; background: transparent; border: none;
-  border-radius: 10px; cursor: pointer; font-family: var(--font); min-width: 0;
-  transition: background 0.15s;
-}
-.filter-pill svg:not(.chevron) { width: 22px; height: 22px; stroke: var(--text-muted); display: block; }
-.filter-pill .chevron { display: none; }
-.filter-pill > span:not(.year-pill-label) { display: none; }
-.filter-pill::after {
-  font-size: 0.6rem; font-weight: 500; color: var(--text-muted); text-align: center; line-height: 1;
-}
-.filter-pill[data-filter="persona"]::after   { content: 'Persona'; }
-.filter-pill[data-filter="lloc"]::after      { content: 'Lloc'; }
-.filter-pill[data-filter="categoria"]::after { content: 'Cat.'; }
-.filter-pill[data-filter="qui"]::after       { content: 'Qui'; }
-.filter-pill.active { background: var(--accent); border-radius: 10px; }
-.filter-pill.active svg { stroke: #fff; }
-.filter-pill.active::after { color: #fff; }
+.filters-row-main::-webkit-scrollbar { display: none; }
 
-/* Botó reset: 5è element del grid */
-#btn-reset-filters {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; padding: 8px 4px; background: transparent; border: none;
-  border-radius: 10px; cursor: pointer; width: 100%;
+.filter-pill {
+  display: flex; flex-direction: row; align-items: center;
+  gap: 5px; padding: 7px 12px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 99px; cursor: pointer; font-family: var(--font);
+  flex-shrink: 0; white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
-#btn-reset-filters svg { width: 20px; height: 20px; stroke: rgba(239,68,68,0.4); display: block; }
-#btn-reset-filters::after { content: 'Netejar'; font-size: 0.6rem; font-weight: 500; color: rgba(239,68,68,0.4); }
+.filter-pill svg:not(.chevron) { width: 15px; height: 15px; stroke: var(--text-muted); flex-shrink: 0; }
+.filter-pill .chevron { width: 11px; height: 11px; stroke: var(--text-muted); flex-shrink: 0; transition: transform 0.2s; }
+.filter-pill > span:not(.year-pill-label) { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); }
+.filter-pill:hover { border-color: var(--accent); }
+.filter-pill:hover > span, .filter-pill:hover svg { color: var(--accent); stroke: var(--accent); }
+.filter-pill.active { background: var(--accent); border-color: var(--accent); }
+.filter-pill.active > span { color: #fff; }
+.filter-pill.active svg { stroke: #fff; }
+
+/* Reset a la fila 1: petita X */
+#btn-reset-filters {
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; border-radius: 50%;
+  cursor: pointer; flex-shrink: 0;
+  padding: 5px; margin-left: 2px;
+  transition: color 0.15s;
+}
+#btn-reset-filters svg { width: 15px; height: 15px; stroke: rgba(239,68,68,0.4); }
 #btn-reset-filters:hover svg { stroke: var(--red); }
-#btn-reset-filters:hover::after { color: var(--red); }
 
 /* Línia 2: slider anys + sort */
 .filters-row-secondary {
-  display: flex; align-items: center; gap: 8px; padding: 6px 12px 10px;
+  display: flex; align-items: center; gap: 8px; padding: 5px 12px 10px;
 }
 .filter-year-pill {
   flex: 1; min-width: 0;
   display: flex; align-items: center; gap: 8px;
-  padding: 9px 14px;
+  padding: 8px 14px;
   background: var(--bg2); border: 1.5px solid var(--border2); border-radius: 99px;
   cursor: default;
 }
-.year-pill-label { font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; min-width: 70px; }
-.filter-year-pill svg { width: 16px; height: 16px; stroke: var(--text-muted); flex-shrink: 0; }
+.year-pill-label { font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; min-width: 72px; }
+.filter-year-pill > svg { width: 15px; height: 15px; stroke: var(--text-muted); flex-shrink: 0; }
 .year-slider-inline { flex: 1; position: relative; height: 18px; min-width: 50px; }
 .year-slider-inline .year-slider-track,
 .year-slider-inline .year-slider-track-active,
@@ -261,15 +263,15 @@ body {
 .year-slider-inline .year-slider-track { height: 3px; background: var(--border2); border-radius: 2px; top: 50%; transform: translateY(-50%); }
 .year-slider-inline .year-slider-track-active { height: 3px; background: var(--accent); border-radius: 2px; top: 50%; transform: translateY(-50%); }
 .year-slider-inline input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; height: 18px; margin: 0; pointer-events: none; }
-.year-slider-inline input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg2); box-shadow: 0 1px 4px rgba(0,0,0,0.2); cursor: pointer; pointer-events: auto; }
+.year-slider-inline input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg2); box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer; pointer-events: auto; }
 .year-slider-inline input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg2); cursor: pointer; pointer-events: auto; }
 
 .sort-pill {
   display: flex; align-items: center; gap: 5px; flex-shrink: 0;
-  padding: 9px 12px;
+  padding: 8px 12px;
   background: var(--bg2); border: 1.5px solid var(--border2); border-radius: 99px;
   color: var(--text-muted); cursor: pointer; font-family: var(--font); font-size: 0.8rem; font-weight: 600;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, color 0.15s;
 }
 .sort-pill svg { width: 14px; height: 14px; stroke: currentColor; }
 .sort-pill:hover, .sort-pill.active { border-color: var(--accent); color: var(--accent); }
@@ -552,39 +554,9 @@ body {
 }
 
 @media (min-width: 600px) {
-  /* Desktop: pills en fila horitzontal (no grid) */
-  .filters-row-main {
-    display: flex !important;
-    grid-template-columns: none;
-    overflow-x: auto;
-    padding: 8px 14px 6px;
-    gap: 8px;
-    scrollbar-width: none;
-  }
-  .filters-row-main::-webkit-scrollbar { display: none; }
-  .filter-pill {
-    flex-direction: row !important;
-    padding: 8px 14px !important;
-    background: var(--bg2) !important;
-    border: 1px solid var(--border2) !important;
-    border-radius: 99px !important;
-    flex-shrink: 0;
-    width: auto !important;
-  }
-  .filter-pill svg:not(.chevron) { width: 16px !important; height: 16px !important; }
-  .filter-pill .chevron { display: block !important; width: 12px; height: 12px; }
-  .filter-pill > span:not(.year-pill-label) { display: block !important; font-size: 0.82rem; font-weight: 500; }
-  .filter-pill::after { display: none !important; }
-  .filter-pill.active { background: var(--accent) !important; border-color: var(--accent) !important; }
-  .filter-pill:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
-  #btn-reset-filters {
-    flex-direction: row !important;
-    width: auto !important;
-    padding: 6px 8px !important;
-    border-radius: 50%;
-  }
-  #btn-reset-filters::after { display: none !important; }
-  #btn-reset-filters svg { width: 14px !important; height: 14px !important; }
+  .filters-row-main { padding: 8px 14px 6px; gap: 8px; }
+  .filter-pill { padding: 8px 14px; }
+  .filter-pill svg:not(.chevron) { width: 16px; height: 16px; }
   .carousel-card img { height: 180px; }
   .videos-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
 }
