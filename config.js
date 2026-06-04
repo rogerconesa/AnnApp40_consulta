@@ -14,6 +14,10 @@ const CONFIG = {
   SHEET_NAME: 'Fotos',
   SHEET_DIA: 'FotosDia',
 
+  // Login per password (usuari de consulta)
+  GUEST_PASSWORD: 'anna2025',          // canvia això pel password real
+  SHEETS_API_KEY: 'AIzaSyDlVEyT4r5s1M4aRjKVOFXHsnhCXRiiQOI', // Maps key (cal habilitar Sheets API)
+
   // Google Drive
   DRIVE_FOLDER_ID: '1h0kMl3ZJqlOPfovzU-B1uIwLaRNMfIEZ',
 

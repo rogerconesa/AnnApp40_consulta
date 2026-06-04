@@ -6,10 +6,16 @@ const Sheets = (() => {
   const BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 
   function _headers() {
-    return {
-      'Authorization': 'Bearer ' + Auth.getToken(),
-      'Content-Type':  'application/json',
-    };
+    const token = Auth.getToken();
+    const h = { 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
+
+  // URL per llegir: amb token → OAuth; sense → API key (full públic)
+  function _readUrl(range) {
+    const base = `${BASE}/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
+    return Auth.getToken() ? base : base + `&key=${CONFIG.SHEETS_API_KEY}`;
   }
 
   // Parseja coordenades robustament (punt o coma decimal)
@@ -22,7 +28,7 @@ const Sheets = (() => {
 
   async function readAll() {
     const range    = `'${CONFIG.SHEET_NAME}'!A2:O`;
-    const endpoint = `${BASE}/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
+    const endpoint = _readUrl(range);
     const res = await fetch(endpoint, { headers: _headers() });
     if (!res.ok) throw new Error('Error llegint Sheets');
     const data = await res.json();
@@ -123,7 +129,7 @@ const Sheets = (() => {
   async function readDia() {
     const sheetName = CONFIG.SHEET_DIA || 'FotosDia';
     const range     = `'${sheetName}'!A2:O`;
-    const endpoint  = `${BASE}/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`;
+    const endpoint  = _readUrl(range);
     const res = await fetch(endpoint, { headers: _headers() });
     if (!res.ok) {
       // Si la pestanya no existeix encara, retornar buit

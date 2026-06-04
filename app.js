@@ -22,20 +22,41 @@ const App = (() => {
   function init() {
     Auth.init(
       async (profile) => {
-        const isAdmin = Auth.isAdmin();
+        const isAdmin      = Auth.isAdmin();
+        const isPassword   = Auth.isPasswordMode();
         UI.setUser(profile, isAdmin);
         UI.showScreen('screen-app');
         await loadPhotos();
         Gallery.init(_photos);
-        initAdmin();
+        if (!isPassword) initAdmin();
         initDia();
-        // Mapa: s'inicialitza lazy quan l'usuari obre la pestanya
+
+        // Amagar botó editar en mode password
+        const editBtn = document.getElementById('lightbox-edit');
+        if (editBtn) editBtn.style.display = isPassword ? 'none' : '';
       },
       () => UI.showScreen('screen-login')
     );
 
     document.getElementById('btn-google-login').addEventListener('click', () => Auth.login());
     document.getElementById('btn-logout').addEventListener('click', () => Auth.logout());
+
+    // Login per password
+    const btnPwd = document.getElementById('btn-password-login');
+    const inputPwd = document.getElementById('input-password');
+    const pwdError = document.getElementById('password-error');
+    const doPasswordLogin = () => {
+      const ok = Auth.loginWithPassword(inputPwd?.value || '');
+      if (!ok) {
+        pwdError?.classList.remove('hidden');
+        inputPwd?.focus();
+        inputPwd?.select();
+      } else {
+        pwdError?.classList.add('hidden');
+      }
+    };
+    btnPwd?.addEventListener('click', doPasswordLogin);
+    inputPwd?.addEventListener('keydown', (e) => { if (e.key === 'Enter') doPasswordLogin(); });
 
     // Nav tabs
     document.querySelectorAll('#bottom-nav .nav-tab').forEach(tab => {

@@ -2867,3 +2867,208 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
 @media (min-width: 600px) {
   .filters-row-secondary .sort-pill-meta { display: none; } /* botó sort al gallery-meta ocult en desktop */
 }
+
+/* ============================================
+   LOGIN — dos modes (password + Google)
+   ============================================ */
+.login-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-section-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.login-password-wrap {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.login-password-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  transition: var(--transition);
+  -webkit-appearance: none;
+}
+.login-password-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.btn-password-login {
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.btn-password-login:hover { opacity: 0.85; }
+
+.login-password-error {
+  font-size: 0.82rem;
+  color: var(--red);
+  font-weight: 500;
+  text-align: left;
+  margin-top: -4px;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  width: 100%;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+}
+
+/* ============================================
+   FILTRES MÒBIL — ample complet, icona+text
+   ============================================ */
+@media (max-width: 599px) {
+
+  /* Fila 1: 5 elements iguals, tot l'ample */
+  .filters-row-main {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 4 pills + reset */
+    gap: 0;
+    padding: 8px 10px 6px;
+    overflow: visible; /* no scroll, caben tots */
+  }
+
+  /* Cada pill: columna centrada (icona dalt, text baix) */
+  .filter-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 4px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    font-size: 0;  /* ocultar text del span per reemplaçar-lo */
+    min-width: 0;
+  }
+
+  /* Icona més gran */
+  .filter-pill svg:not(.chevron) {
+    width: 22px;
+    height: 22px;
+    display: block;
+  }
+
+  /* Chevron ocult en mòbil */
+  .filter-pill .chevron { display: none !important; }
+
+  /* Text sota la icona (pseudo-element amb data-attr) */
+  .filter-pill[data-filter="persona"]::after  { content: 'Persona';   }
+  .filter-pill[data-filter="lloc"]::after     { content: 'Lloc';      }
+  .filter-pill[data-filter="categoria"]::after{ content: 'Categoria'; }
+  .filter-pill[data-filter="qui"]::after      { content: 'Qui';       }
+
+  .filter-pill::after {
+    font-size: 0.58rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    display: block;
+    text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* Actiu: color accent */
+  .filter-pill.active::after { color: #fff; }
+  .filter-pill.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Reset a la mateixa fila, mateix format */
+  .filter-reset-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 4px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    width: 100%;
+  }
+  .filter-reset-btn svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    stroke: var(--text-muted);
+  }
+  .filter-reset-btn::after {
+    content: 'Netejar';
+    font-size: 0.58rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .filter-reset-btn:hover svg,
+  .filter-reset-btn:hover::after { color: var(--red); stroke: var(--red); }
+
+  /* Light mode: icones en accent blau */
+  [data-theme="light"] .filter-pill svg { stroke: var(--accent); }
+  [data-theme="light"] .filter-pill::after { color: var(--accent); }
+  [data-theme="light"] .filter-pill.active svg { stroke: #fff; }
+  [data-theme="light"] .filter-pill.active::after { color: #fff; }
+
+}
+
+/* Desktop: fila 1 sense grid, scroll normal, reset discret */
+@media (min-width: 600px) {
+  .filters-row-main {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 14px 6px;
+    gap: 8px;
+    scrollbar-width: none;
+  }
+  .filters-row-main #btn-reset-filters {
+    /* Reset discret en desktop */
+    flex-direction: row;
+    background: none;
+    width: auto;
+    padding: 6px 8px;
+    color: rgba(239,68,68,0.4);
+    flex-shrink: 0;
+  }
+  .filters-row-main #btn-reset-filters::after { display: none; }
+  .filters-row-main #btn-reset-filters svg { width: 14px; height: 14px; }
+  .filters-row-main #btn-reset-filters:hover { color: var(--red); background: rgba(239,68,68,0.08); border-radius: 50%; }
+}
