@@ -147,33 +147,37 @@ const MapView = (() => {
   }
 
   function _openClusterCarousel(group) {
-    // Crea un modal temporal de carrussel per les fotos del cluster
     let existing = document.getElementById('map-cluster-modal');
     if (existing) existing.remove();
 
     let idx = 0;
-    const photos = group.photos;
+    const photos = group.photos.filter(p => p.tipus !== 'video');
+    if (photos.length === 0) return;
 
     const modal = document.createElement('div');
     modal.id = 'map-cluster-modal';
     modal.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:1rem';
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+
+    // Afegir al DOM PRIMER, després render (getElementById necessita estar al DOM)
+    document.body.appendChild(modal);
 
     const render = () => {
       const p = photos[idx];
       modal.innerHTML = `
         <div style="position:relative;max-width:500px;width:100%;background:var(--bg2);border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
           <button id="cmc-close" style="position:absolute;top:10px;right:12px;background:rgba(0,0,0,0.5);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;z-index:10">✕</button>
-          <img src="${p.url}" style="width:100%;max-height:60dvh;object-fit:contain;background:#000;display:block" />
-          <div style="padding:14px 16px">
-            <div style="font-weight:700;font-size:1rem">${p.lloc || ''}</div>
-            <div style="font-size:0.8rem;color:var(--text-muted);margin-top:3px">${p.any || ''} · ${p.persones.join(', ') || ''}</div>
-            ${p.notes ? `<div style="font-size:0.82rem;font-style:italic;margin-top:6px;color:var(--text-muted)">"${p.notes}"</div>` : ''}
+          <img src="${p.url}" style="width:100%;max-height:55dvh;object-fit:contain;background:#000;display:block" loading="lazy" />
+          <div style="padding:12px 16px">
+            <div style="font-weight:700;font-size:0.95rem">${p.lloc || ''}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${p.any || ''} · ${p.persones.join(', ') || ''}</div>
+            ${p.categoria?.length ? `<div style="font-size:0.72rem;color:var(--accent);margin-top:2px">${p.categoria.join(' · ')}</div>` : ''}
           </div>
           ${photos.length > 1 ? `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 14px;gap:8px">
-            <button id="cmc-prev" style="flex:1;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font)" ${idx === 0 ? 'disabled' : ''}>‹ Anterior</button>
-            <span style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap">${idx + 1} / ${photos.length}</span>
-            <button id="cmc-next" style="flex:1;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font)" ${idx === photos.length - 1 ? 'disabled' : ''}>Següent ›</button>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 12px;gap:8px">
+            <button id="cmc-prev" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font);font-size:0.85rem" ${idx === 0 ? 'disabled' : ''}>‹ Anterior</button>
+            <span style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">${idx + 1} / ${photos.length}</span>
+            <button id="cmc-next" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font);font-size:0.85rem" ${idx === photos.length - 1 ? 'disabled' : ''}>Següent ›</button>
           </div>` : ''}
         </div>
       `;
@@ -182,8 +186,6 @@ const MapView = (() => {
       document.getElementById('cmc-next')?.addEventListener('click', () => { if (idx < photos.length - 1) { idx++; render(); } });
     };
     render();
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-    document.body.appendChild(modal);
   }
 
   function _buildPopup() { return ''; }

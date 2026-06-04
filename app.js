@@ -38,7 +38,7 @@ const App = (() => {
     document.getElementById('btn-logout').addEventListener('click', () => Auth.logout());
 
     // Nav tabs
-    document.querySelectorAll('.nav-tab').forEach(tab => {
+    document.querySelectorAll('#bottom-nav .nav-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
@@ -64,6 +64,31 @@ const App = (() => {
     // View toggle (graella / carrussel)
     document.getElementById('view-grid')?.addEventListener('click', () => Gallery.setView('grid'));
     document.getElementById('view-carousel')?.addEventListener('click', () => Gallery.setView('carousel'));
+
+    // ── Scroll-hide bottom nav (estil app nativa) ──
+    let _lastScrollY = 0;
+    const bottomNav  = document.getElementById('bottom-nav');
+    window.addEventListener('scroll', () => {
+      const cur = window.scrollY;
+      if (cur > _lastScrollY + 8) {
+        bottomNav?.classList.add('hidden-nav');    // scroll down → amaga
+      } else if (cur < _lastScrollY - 8) {
+        bottomNav?.classList.remove('hidden-nav'); // scroll up → mostra
+      }
+      _lastScrollY = cur;
+    }, { passive: true });
+
+    // ── Token refresh automàtic per 401 ──────────
+    async function _apiWithRetry(fn) {
+      try { return await fn(); }
+      catch(err) {
+        if (err?.message?.includes('401') && Auth.refreshToken) {
+          try { await Auth.refreshToken(); return await fn(); }
+          catch(e) { throw err; }
+        }
+        throw err;
+      }
+    }
 
     // Detectar scroll final de la fila de filtres (treure degradat)
     const filterRow = document.querySelector('.filters-row-main');

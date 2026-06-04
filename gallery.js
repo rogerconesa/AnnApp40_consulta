@@ -502,9 +502,7 @@ Si no en trobes: {"ids": []}`;
     if (_filteredPhotos.length === 0) { empty.classList.remove('hidden'); return; }
     empty.classList.add('hidden');
 
-    const ordered = _sortPhotos(_filteredPhotos.filter(p => p.tipus !== 'video'));
-    const videos  = _filteredPhotos.filter(p => p.tipus === 'video');
-    const all     = [...ordered, ...videos];
+    const all = _sortPhotos(_filteredPhotos.filter(p => p.tipus !== 'video'));
 
     all.forEach(photo => {
       const isVideo = photo.tipus === 'video';
@@ -518,11 +516,11 @@ Si no en trobes: {"ids": []}`;
         <div class="gallery-card-imgwrap">
           ${thumb}
           ${photo.preferida ? '<div class="gallery-card-star">⭐</div>' : ''}
-          ${isVideo ? '<div class="gallery-card-vidbadge">🎬 VÍDEO</div>' : ''}
         </div>
         <div class="gallery-card-info">
-          <div class="gallery-card-lloc">${photo.lloc || (isVideo ? 'Vídeo de felicitació' : '—')}</div>
+          <div class="gallery-card-lloc">${photo.lloc || '—'}</div>
           <div class="gallery-card-meta">${photo.any || ''}${photo.persones.length ? ' · ' + photo.persones.slice(0,2).join(', ') : ''}</div>
+          ${photo.categoria.length ? `<div class="gallery-card-cat">${photo.categoria[0]}</div>` : ''}
         </div>
       `;
       card.addEventListener('click', () => openLightbox(photo));
