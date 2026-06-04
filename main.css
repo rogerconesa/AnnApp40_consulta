@@ -678,179 +678,6 @@ body {
 }
 .regal-link:hover { opacity: 0.85; }
 
-/* ── Revelació en dues fases ─────────────────── */
-@keyframes revealIn {
-  from { opacity: 0; transform: translateY(16px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes dotsWave {
-  0%, 80%, 100% { transform: translateY(0); }
-  40%           { transform: translateY(-5px); }
-}
-
-.regal-reveal-wrap {
-  display: flex;
-  justify-content: center;
-  margin: 0.5rem 0 1rem;
-}
-
-.regal-reveal-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #ffd60a, #ff9f0a);
-  border: none;
-  border-radius: 99px;
-  color: #000;
-  cursor: pointer;
-  font-family: var(--font);
-  font-size: 1rem;
-  font-weight: 700;
-  padding: 12px 24px;
-  box-shadow: 0 4px 20px rgba(255,214,10,0.45);
-  transition: transform 0.15s, box-shadow 0.15s;
-  animation: wiggle 2s ease-in-out infinite;
-  animation-delay: 1s;
-}
-.regal-reveal-btn:hover {
-  transform: scale(1.04);
-  box-shadow: 0 6px 28px rgba(255,214,10,0.6);
-}
-
-.regal-reveal-dots {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-.regal-reveal-dots span {
-  width: 7px; height: 7px;
-  background: #000;
-  border-radius: 50%;
-  display: block;
-  animation: dotsWave 1.2s ease-in-out infinite;
-}
-.regal-reveal-dots span:nth-child(2) { animation-delay: 0.15s; }
-.regal-reveal-dots span:nth-child(3) { animation-delay: 0.3s; }
-
-/* Sorpresa animada en aparèixer */
-#regal-surprise {
-  animation: revealIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
-}
-#regal-surprise.hidden { display: none; }
-
-
-/* ── Crèdits simples ─────────────────────────── */
-.regal-credits-simple {
-  margin-top: 1.75rem;
-  padding: 1.25rem;
-  background: var(--bg3);
-  border-radius: 14px;
-  text-align: center;
-}
-.regal-credits-simple-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 0.75rem;
-}
-.regal-credits-simple-noms {
-  font-size: 0.95rem;
-  color: var(--text2);
-  line-height: 1.8;
-}
-.regal-credits-roger {
-  color: var(--gold);
-  font-weight: 700;
-}
-
-/* ── Video poster — tapa la càrrega grisa de Drive ── */
-.vplayer-frame { position: relative; }
-.vplayer-poster {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: opacity 0.6s ease;
-  z-index: 5;
-}
-.vplayer-poster-icon {
-  position: relative;
-  width: 64px; height: 64px;
-  display: flex; align-items: center; justify-content: center;
-}
-.vplayer-poster-icon span {
-  position: absolute;
-  color: #fff;
-  font-size: 1.6rem;
-  padding-left: 4px;
-  z-index: 2;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-}
-@keyframes ring-spin {
-  to { transform: rotate(360deg); }
-}
-.vplayer-loading-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 3px solid rgba(255,255,255,0.25);
-  border-top-color: #fff;
-  animation: ring-spin 1s linear infinite;
-}
-.vplayer-poster.fade-out {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* ── Lightbox: permetre pinch-zoom a la imatge ── */
-#lightbox-overlay { touch-action: pan-y; }
-.lightbox-img-wrap img {
-  touch-action: pinch-zoom;
-  max-width: 100%;
-}
-/* Evitar rubber-band scroll horitzontal fora del lightbox */
-body { overscroll-behavior-x: none; }
-
-/* ── Video cover opac (substitueix poster) ── */
-.vplayer-cover {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: opacity 0.6s ease;
-  cursor: pointer;
-}
-.vplayer-cover-thumb {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-color: #000;
-}
-.vplayer-cover-icon {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.vplayer-cover-icon span {
-  position: absolute;
-  color: #fff;
-  font-size: 1.6rem;
-  padding-left: 4px;
-  z-index: 2;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-}
-
 /* ============================================
    LIGHT MODE — filtres destacats i actius
    ============================================ */
@@ -921,3 +748,107 @@ body { overscroll-behavior-x: none; }
   border-color: var(--accent);
   color: var(--accent);
 }
+
+/* ============================================
+   VIDEO COVER (descàrrega de blob)
+   ============================================ */
+.vplayer-frame { position: relative; }
+.vplayer-cover {
+  position: absolute; inset: 0; z-index: 20;
+  border-radius: 12px; overflow: hidden;
+  transition: opacity 0.5s ease; cursor: default;
+}
+.vplayer-cover-thumb {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center; background-color: #000;
+}
+.vplayer-cover-icon {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.vplayer-cover-icon span {
+  position: relative; z-index: 2;
+  color: #fff; font-size: 1.3rem; font-weight: 600;
+  background: rgba(0,0,0,0.5); border-radius: 99px;
+  padding: 8px 16px; backdrop-filter: blur(4px);
+}
+@keyframes ring-spin { to { transform: rotate(360deg); } }
+.vplayer-loading-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.2);
+  border-top-color: #fff;
+  animation: ring-spin 1s linear infinite;
+  width: 60px; height: 60px; margin: auto;
+}
+
+/* ============================================
+   TOUCH / PINCH — lightbox
+   ============================================ */
+#lightbox-overlay { touch-action: pan-y; }
+.lightbox-img-wrap img { touch-action: pinch-zoom; max-width: 100%; }
+body { overscroll-behavior-x: none; }
+
+/* ============================================
+   FILTRES ACTIUS — blau en dark i light
+   ============================================ */
+
+/* Dark mode: filter pill actiu blau */
+.filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.filter-pill.active svg,
+.filter-pill.active .chevron { stroke: #fff; }
+.filter-pill.active::after { color: #fff; }
+
+/* Light mode: pills amb vora i ombra, actiu blau */
+[data-theme="light"] .filters-bar {
+  background: #f5f5f7;
+  border-bottom: 1px solid #e5e5ea;
+}
+[data-theme="light"] .filter-pill {
+  background: #fff;
+  border: 1.5px solid #c7c7cc;
+  color: #3a3a3c;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .filter-pill svg { stroke: #6e6e73; }
+[data-theme="light"] .filter-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(10,132,255,0.05);
+}
+[data-theme="light"] .filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(10,132,255,0.3);
+}
+[data-theme="light"] .filter-pill.active svg,
+[data-theme="light"] .filter-pill.active .chevron { stroke: #fff; }
+
+[data-theme="light"] .filter-year-pill {
+  background: #fff;
+  border: 1.5px solid #c7c7cc;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .sort-pill {
+  background: #fff;
+  border: 1.5px solid #c7c7cc;
+  color: #3a3a3c;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .sort-pill:hover,
+[data-theme="light"] .sort-pill.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(10,132,255,0.05);
+}
+[data-theme="light"] .view-toggle {
+  background: #f0f0f2;
+  border-color: #c7c7cc;
+}
+[data-theme="light"] .view-toggle-btn { color: #6e6e73; }
+[data-theme="light"] .view-toggle-btn.active { background: var(--accent); color: #fff; }

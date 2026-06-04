@@ -165,9 +165,11 @@ const MapView = (() => {
 
     const render = () => {
       const p = photos[idx];
+      const isAdmin = typeof Auth !== 'undefined' && Auth.isAdmin && Auth.isAdmin();
       modal.innerHTML = `
         <div id="cmc-card" style="position:relative;max-width:500px;width:100%;background:var(--bg2);border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
           <button id="cmc-close" style="position:absolute;top:10px;right:12px;background:rgba(0,0,0,0.5);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;z-index:10">✕</button>
+          ${isAdmin ? `<button id="cmc-edit" style="position:absolute;top:10px;right:52px;background:rgba(0,0,0,0.5);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:0.9rem;cursor:pointer;z-index:10">✏️</button>` : ''}
           <img src="${p.url}" style="width:100%;max-height:55dvh;object-fit:contain;background:#000;display:block" loading="lazy" />
           <div style="padding:12px 16px">
             <div style="font-weight:700;font-size:0.95rem">${p.lloc || ''}</div>
@@ -185,6 +187,15 @@ const MapView = (() => {
       document.getElementById('cmc-close').onclick = () => modal.remove();
       document.getElementById('cmc-prev')?.addEventListener('click', () => { if (idx > 0) { idx--; render(); } });
       document.getElementById('cmc-next')?.addEventListener('click', () => { if (idx < photos.length - 1) { idx++; render(); } });
+
+      // Botó editar — obre el lightbox de la galeria (que té el modal d'edició)
+      document.getElementById('cmc-edit')?.addEventListener('click', () => {
+        modal.remove();
+        if (typeof Gallery !== 'undefined' && Gallery.openLightbox) {
+          Gallery.openLightbox(p);
+          setTimeout(() => document.getElementById('lightbox-edit')?.click(), 100);
+        }
+      });
 
       // Swipe tàctil
       const card = document.getElementById('cmc-card');
