@@ -89,12 +89,15 @@ const App = (() => {
     // ── Scroll-hide bottom nav (estil app nativa) ──
     let _lastScrollY = 0;
     const bottomNav  = document.getElementById('bottom-nav');
+    const filterBar  = document.querySelector('.filters-bar');
     window.addEventListener('scroll', () => {
       const cur = window.scrollY;
       if (cur > _lastScrollY + 8) {
-        bottomNav?.classList.add('hidden-nav');    // scroll down → amaga
+        bottomNav?.classList.add('hidden-nav');
+        filterBar?.classList.add('hidden-nav');
       } else if (cur < _lastScrollY - 8) {
-        bottomNav?.classList.remove('hidden-nav'); // scroll up → mostra
+        bottomNav?.classList.remove('hidden-nav');
+        filterBar?.classList.remove('hidden-nav');
       }
       _lastScrollY = cur;
     }, { passive: true });
@@ -137,14 +140,7 @@ const App = (() => {
       startAutoplay(Gallery.getFiltered ? Gallery.getFiltered() : []);
     });
 
-    // Botó sort al costat d'autoplay (mòbil)
-    document.getElementById('btn-sort-meta')?.addEventListener('click', () => {
-      // Sincronitzar amb el sort-pill principal
-      document.getElementById('btn-sort')?.click();
-      const lbl = document.getElementById('sort-label');
-      const lblMeta = document.getElementById('sort-label-meta');
-      if (lblMeta && lbl) lblMeta.textContent = lbl.textContent;
-    });
+    // Botó sort al costat d'autoplay (mòbil) — eliminat, sort és al costat del slider
 
     // Detectar scroll final de la fila de filtres (treure degradat)
     const filterRow = document.querySelector('.filters-row-main');

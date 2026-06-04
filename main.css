@@ -201,7 +201,15 @@ body {
 /* ============================================
    FILTRES — BARRA (dues línies)
    ============================================ */
-.filters-bar { background: var(--bg); border-bottom: 1px solid var(--border); }
+.filters-bar {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 68px;
+  z-index: 90;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.filters-bar.hidden-nav { transform: translateY(-200%); }
 
 /* Línia 1: pills horitzontals scrollables (icona + text + chevron) */
 .filters-row-main {
