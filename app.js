@@ -156,7 +156,15 @@ const App = (() => {
     // Revelació fase 2
     document.getElementById('regal-reveal-btn')?.addEventListener('click', () => {
       document.getElementById('regal-reveal-btn-wrap')?.classList.add('hidden');
-      document.getElementById('regal-surprise')?.classList.remove('hidden');
+      const surprise = document.getElementById('regal-surprise');
+      surprise?.classList.remove('hidden');
+      // Reiniciar animació dels crèdits
+      const credits = surprise?.querySelector('.regal-credits');
+      if (credits) {
+        credits.style.animation = 'none';
+        credits.offsetHeight; // reflow
+        credits.style.animation = '';
+      }
     });
     const closeRegal = () => {
       regalOverlay?.classList.add('hidden');

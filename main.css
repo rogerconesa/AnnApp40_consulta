@@ -740,25 +740,26 @@ body {
 
 /* ── Crèdits Star Wars ───────────────────────── */
 @keyframes crawl {
-  0%   { transform: perspective(400px) rotateX(20deg) translateY(100%); }
-  100% { transform: perspective(400px) rotateX(20deg) translateY(-220%); }
+  0%   { transform: perspective(500px) rotateX(22deg) translateY(110%); }
+  100% { transform: perspective(500px) rotateX(22deg) translateY(-400%); }
 }
 
 .regal-credits-wrap {
   overflow: hidden;
-  height: 220px;
+  height: 260px;
   position: relative;
   margin-top: 2rem;
-  mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
 }
 
 .regal-credits {
-  animation: crawl 18s linear infinite;
-  animation-delay: 0.5s;
+  animation: crawl 35s linear forwards;
+  animation-delay: 0.8s;
   text-align: center;
-  padding: 0 1rem 4rem;
-  transform-origin: bottom center;
+  padding: 0 1rem 6rem;
+  transform-origin: 50% 100%;
+  transform: perspective(500px) rotateX(22deg) translateY(110%);
 }
 .regal-credits-wrap:hover .regal-credits { animation-play-state: paused; }
 
@@ -768,8 +769,8 @@ body {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 1.1rem;
-  line-height: 1.5;
+  margin-bottom: 1.4rem;
+  line-height: 1.6;
 }
 
 .regal-credits-name {
@@ -777,11 +778,12 @@ body {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text2);
-  line-height: 2;
+  line-height: 2.2;
   letter-spacing: 0.04em;
 }
 .regal-credits-name.last {
   color: var(--gold);
   font-size: 1.15rem;
   font-weight: 800;
+  margin-top: 0.5rem;
 }
