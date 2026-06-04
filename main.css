@@ -738,52 +738,29 @@ body {
 }
 #regal-surprise.hidden { display: none; }
 
-/* ── Crèdits Star Wars ───────────────────────── */
-@keyframes crawl {
-  0%   { transform: perspective(500px) rotateX(22deg) translateY(110%); }
-  100% { transform: perspective(500px) rotateX(22deg) translateY(-400%); }
-}
 
-.regal-credits-wrap {
-  overflow: hidden;
-  height: 260px;
-  position: relative;
-  margin-top: 2rem;
-  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-}
-
-.regal-credits {
-  animation: crawl 35s linear forwards;
-  animation-delay: 0.8s;
+/* ── Crèdits simples ─────────────────────────── */
+.regal-credits-simple {
+  margin-top: 1.75rem;
+  padding: 1.25rem;
+  background: var(--bg3);
+  border-radius: 14px;
   text-align: center;
-  padding: 0 1rem 6rem;
-  transform-origin: 50% 100%;
-  transform: perspective(500px) rotateX(22deg) translateY(110%);
 }
-.regal-credits-wrap:hover .regal-credits { animation-play-state: paused; }
-
-.regal-credits-title {
-  font-size: 0.78rem;
+.regal-credits-simple-title {
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 1.4rem;
-  line-height: 1.6;
+  margin-bottom: 0.75rem;
 }
-
-.regal-credits-name {
-  display: block;
-  font-size: 1rem;
-  font-weight: 600;
+.regal-credits-simple-noms {
+  font-size: 0.95rem;
   color: var(--text2);
-  line-height: 2.2;
-  letter-spacing: 0.04em;
+  line-height: 1.8;
 }
-.regal-credits-name.last {
+.regal-credits-roger {
   color: var(--gold);
-  font-size: 1.15rem;
-  font-weight: 800;
-  margin-top: 0.5rem;
+  font-weight: 700;
 }
