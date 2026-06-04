@@ -175,10 +175,12 @@ const Gallery = (() => {
       apply();
     });
 
-    // Tancar persiana clicant fora
+    // Tancar persiana clicant fora (bubble, no capture)
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.filters-bar')) _closeDrawer();
-    }, true);
+      if (!e.target.closest('#filter-drawer') && !e.target.closest('.filter-pill[data-filter]')) {
+        _closeDrawer();
+      }
+    });
   }
 
   // ── Slider d'anys ─────────────────────────────

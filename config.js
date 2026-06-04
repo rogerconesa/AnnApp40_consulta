@@ -15,7 +15,7 @@ const CONFIG = {
   SHEET_DIA: 'FotosDia',
 
   // Login per password (usuari de consulta)
-  GUEST_PASSWORD: 'anna2025',          // canvia això pel password real
+  GUEST_PASSWORD: 'AnnaApp40_TOTS',
   SHEETS_API_KEY: 'AIzaSyDlVEyT4r5s1M4aRjKVOFXHsnhCXRiiQOI', // Maps key (cal habilitar Sheets API)
 
   // Google Drive

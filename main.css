@@ -3072,3 +3072,233 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
   .filters-row-main #btn-reset-filters svg { width: 14px; height: 14px; }
   .filters-row-main #btn-reset-filters:hover { color: var(--red); background: rgba(239,68,68,0.08); border-radius: 50%; }
 }
+
+/* ============================================
+   FIXES MÒBIL: slider ample + reset mínim
+   ============================================ */
+
+/* Slider: sempre ocupa tot l'ample de la fila */
+.filters-row-secondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 10px;
+}
+.filters-row-secondary .filter-year-pill {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 99px;
+  cursor: default;
+}
+.filters-row-secondary .year-slider-inline {
+  flex: 1;
+  min-width: 60px;
+}
+
+/* Reset: petita aspa rodona sense text */
+@media (max-width: 599px) {
+  /* Reset: icona mínima, 5è element del grid */
+  .filters-row-main #btn-reset-filters {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    width: 100%;
+    color: var(--text-muted);
+  }
+  .filters-row-main #btn-reset-filters svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--text-muted);
+  }
+  /* Ocultar text ::after del reset en grid */
+  .filters-row-main #btn-reset-filters::after {
+    content: 'Netejar';
+    font-size: 0.58rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    display: block;
+  }
+  .filters-row-main #btn-reset-filters:hover svg,
+  .filters-row-main #btn-reset-filters:hover::after {
+    stroke: var(--red);
+    color: var(--red);
+  }
+}
+
+/* ============================================
+   LOGIN MILLORAT
+   ============================================ */
+#screen-login {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(10,132,255,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(245,158,11,0.08) 0%, transparent 50%),
+    var(--bg);
+  padding: 2rem 1.25rem;
+}
+
+.login-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 400px;
+  padding: 2.5rem 2rem 2rem;
+  width: 100%;
+}
+
+.login-deco {
+  font-size: 2.8rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(245,158,11,0.4));
+}
+
+.login-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin: -8px 0 -4px;
+}
+
+.login-40 {
+  color: var(--accent);
+}
+
+.login-sub {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+  margin-top: -8px;
+}
+
+.login-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.login-password-wrap {
+  display: flex;
+  gap: 8px;
+}
+
+.login-password-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+.login-password-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.login-password-input::placeholder { color: var(--text-dim); }
+
+.btn-password-login {
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.75rem 1.2rem;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.btn-password-login:hover { opacity: 0.88; }
+
+.login-password-error {
+  background: rgba(255,59,48,0.08);
+  border: 1px solid rgba(255,59,48,0.2);
+  border-radius: 8px;
+  color: var(--red);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+}
+
+.btn-google {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.8rem 1.25rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn-google:hover {
+  border-color: var(--accent);
+  background: var(--bg4);
+}
+
+.login-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
