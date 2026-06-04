@@ -570,3 +570,110 @@ body {
   .carousel-card img { height: 180px; }
   .videos-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
 }
+
+/* ============================================
+   BOTÓ REGAL
+   ============================================ */
+@keyframes wiggle {
+  0%   { transform: rotate(0deg) scale(1); }
+  15%  { transform: rotate(-12deg) scale(1.15); }
+  30%  { transform: rotate(10deg) scale(1.1); }
+  45%  { transform: rotate(-8deg) scale(1.12); }
+  60%  { transform: rotate(6deg) scale(1.08); }
+  75%  { transform: rotate(-4deg) scale(1.05); }
+  90%  { transform: rotate(2deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+.regal-btn {
+  font-size: 1.5rem;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffd60a, #ff9f0a);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(255,214,10,0.5);
+  cursor: pointer;
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  animation: wiggle 1.4s ease-in-out infinite;
+  animation-delay: 2s;
+  transition: box-shadow 0.2s;
+}
+.regal-btn:hover { box-shadow: 0 4px 20px rgba(255,214,10,0.7); }
+.regal-btn.open  { animation: none; }
+
+/* ============================================
+   MODAL REGAL
+   ============================================ */
+.regal-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  animation: fadeUp 0.3s ease both;
+}
+.regal-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 16px 60px rgba(0,0,0,0.4);
+  max-width: 480px; width: 100%;
+  max-height: 90dvh; overflow-y: auto;
+  position: relative;
+  animation: fadeUp 0.35s ease both;
+}
+.regal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: var(--bg3); border: none; border-radius: 50%;
+  color: var(--text-muted); cursor: pointer;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; z-index: 10;
+  transition: var(--transition);
+}
+.regal-close:hover { background: var(--red); color: #fff; }
+
+.regal-emoji {
+  font-size: 3.5rem;
+  text-align: center;
+  padding: 2rem 1rem 0.5rem;
+  filter: drop-shadow(0 4px 12px rgba(255,214,10,0.4));
+}
+.regal-body { padding: 0 1.75rem 2rem; }
+.regal-text {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text2);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.regal-text strong { color: var(--accent); font-weight: 700; }
+
+.regal-product { text-align: center; }
+.regal-product-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #ffd60a, #ff9f0a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+}
+.regal-ipad-img {
+  width: 100%; max-width: 360px;
+  border-radius: 12px;
+  display: block; margin: 0 auto 1.25rem;
+}
+.regal-product-sub { font-size: 1rem; color: var(--text2); }
+.regal-link {
+  display: inline-block; margin-top: 0.5rem;
+  background: var(--accent);
+  color: #fff; text-decoration: none;
+  border-radius: 99px; padding: 10px 22px;
+  font-size: 0.95rem; font-weight: 700;
+  transition: opacity 0.15s;
+}
+.regal-link:hover { opacity: 0.85; }

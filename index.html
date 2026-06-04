@@ -156,6 +156,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
             Autoplay
           </button>
+          <button id="btn-regal" class="regal-btn" title="El teu regal">🎁</button>
 
           <div class="view-toggle">
             <button id="view-grid" class="view-toggle-btn active" title="Graella">▦</button>
@@ -340,6 +341,30 @@
   <script src="gallery.js"></script>
   <script src="map.js"></script>
   <script src="app.js"></script>
+  <!-- MODAL REGAL -->
+  <div id="regal-overlay" class="regal-overlay hidden">
+    <div class="regal-modal">
+      <button class="regal-close" id="regal-close">✕</button>
+      <div class="regal-emoji">🎁</div>
+      <div class="regal-body">
+        <p class="regal-text">
+          Per a poder consultar en condicions aquesta app, mirar pelis, sèries i sobretot, prendre notes a les reunions
+          <strong>Talent Manager Plus Deluxe</strong>, creiem que el que millor et pot anar és...
+        </p>
+        <div class="regal-product">
+          <h2 class="regal-product-title">Un iPad Air</h2>
+          <img src="ipad-air.png" alt="iPad Air" class="regal-ipad-img" />
+          <p class="regal-product-sub">
+            amb el corresponent
+            <a href="https://www.apple.com/es/apple-pencil/" target="_blank" rel="noopener" class="regal-link">
+              ✏️ Apple Pencil
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- NAV INFERIOR -->
   <nav class="bottom-nav" id="bottom-nav">
     <button class="nav-tab active" data-tab="galeria">

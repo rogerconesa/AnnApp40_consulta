@@ -140,6 +140,22 @@ const App = (() => {
       startAutoplay(Gallery.getFiltered ? Gallery.getFiltered() : []);
     });
 
+    // ── Botó regal ────────────────────────────────
+    const regalBtn     = document.getElementById('btn-regal');
+    const regalOverlay = document.getElementById('regal-overlay');
+    const regalClose   = document.getElementById('regal-close');
+
+    regalBtn?.addEventListener('click', () => {
+      regalBtn.classList.add('open');       // atura animació
+      regalOverlay?.classList.remove('hidden');
+    });
+    const closeRegal = () => {
+      regalOverlay?.classList.add('hidden');
+      setTimeout(() => regalBtn?.classList.remove('open'), 600); // reprèn animació
+    };
+    regalClose?.addEventListener('click', closeRegal);
+    regalOverlay?.addEventListener('click', (e) => { if (e.target === regalOverlay) closeRegal(); });
+
     // Botó sort al costat d'autoplay (mòbil) — eliminat, sort és al costat del slider
 
     // Detectar scroll final de la fila de filtres (treure degradat)
