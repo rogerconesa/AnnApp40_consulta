@@ -351,15 +351,27 @@
           Per a poder consultar en condicions aquesta app, mirar pelis, sèries i sobretot, prendre notes a les reunions
           <strong>Talent Manager Plus Deluxe</strong>, creiem que el que millor et pot anar és...
         </p>
-        <div class="regal-product">
-          <h2 class="regal-product-title">Un iPad Air</h2>
+
+        <!-- Fase 1: botó per revelar -->
+        <div id="regal-reveal-btn-wrap" class="regal-reveal-wrap">
+          <button id="regal-reveal-btn" class="regal-reveal-btn">
+            <span class="regal-reveal-dots">
+              <span></span><span></span><span></span>
+            </span>
+            Toca per descobrir-ho
+          </button>
+        </div>
+
+        <!-- Fase 2: la sorpresa (oculta fins que es clica) -->
+        <div id="regal-surprise" class="regal-product hidden">
+          <h2 class="regal-product-title">Un iPad Air ✨</h2>
           <img src="ipad-air.png" alt="iPad Air" class="regal-ipad-img" />
           <p class="regal-product-sub">
             amb el corresponent
-            <a href="https://www.apple.com/es/apple-pencil/" target="_blank" rel="noopener" class="regal-link">
-              ✏️ Apple Pencil
-            </a>
           </p>
+          <a href="https://www.apple.com/es/apple-pencil/" target="_blank" rel="noopener" class="regal-link">
+            ✏️ Apple Pencil
+          </a>
         </div>
       </div>
     </div>

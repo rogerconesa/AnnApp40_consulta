@@ -586,12 +586,12 @@ body {
 }
 
 .regal-btn {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   line-height: 1;
-  background: linear-gradient(135deg, #ffd60a, #ff9f0a);
-  border: none;
+  background: #1c1c1e;
+  border: 2px solid #ffd60a;
   border-radius: 50%;
-  box-shadow: 0 2px 12px rgba(255,214,10,0.5);
+  box-shadow: 0 2px 12px rgba(255,214,10,0.45);
   cursor: pointer;
   width: 38px; height: 38px;
   display: flex; align-items: center; justify-content: center;
@@ -677,3 +677,63 @@ body {
   transition: opacity 0.15s;
 }
 .regal-link:hover { opacity: 0.85; }
+
+/* ── Revelació en dues fases ─────────────────── */
+@keyframes revealIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes dotsWave {
+  0%, 80%, 100% { transform: translateY(0); }
+  40%           { transform: translateY(-5px); }
+}
+
+.regal-reveal-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 1rem;
+}
+
+.regal-reveal-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #ffd60a, #ff9f0a);
+  border: none;
+  border-radius: 99px;
+  color: #000;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 12px 24px;
+  box-shadow: 0 4px 20px rgba(255,214,10,0.45);
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: wiggle 2s ease-in-out infinite;
+  animation-delay: 1s;
+}
+.regal-reveal-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 28px rgba(255,214,10,0.6);
+}
+
+.regal-reveal-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.regal-reveal-dots span {
+  width: 7px; height: 7px;
+  background: #000;
+  border-radius: 50%;
+  display: block;
+  animation: dotsWave 1.2s ease-in-out infinite;
+}
+.regal-reveal-dots span:nth-child(2) { animation-delay: 0.15s; }
+.regal-reveal-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+/* Sorpresa animada en aparèixer */
+#regal-surprise {
+  animation: revealIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+#regal-surprise.hidden { display: none; }

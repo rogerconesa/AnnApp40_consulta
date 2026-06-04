@@ -146,8 +146,17 @@ const App = (() => {
     const regalClose   = document.getElementById('regal-close');
 
     regalBtn?.addEventListener('click', () => {
-      regalBtn.classList.add('open');       // atura animació
+      regalBtn.classList.add('open');
+      // Reset a fase 1 cada cop que s'obre
+      document.getElementById('regal-surprise')?.classList.add('hidden');
+      document.getElementById('regal-reveal-btn-wrap')?.classList.remove('hidden');
       regalOverlay?.classList.remove('hidden');
+    });
+
+    // Revelació fase 2
+    document.getElementById('regal-reveal-btn')?.addEventListener('click', () => {
+      document.getElementById('regal-reveal-btn-wrap')?.classList.add('hidden');
+      document.getElementById('regal-surprise')?.classList.remove('hidden');
     });
     const closeRegal = () => {
       regalOverlay?.classList.add('hidden');
