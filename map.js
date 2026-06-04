@@ -39,6 +39,7 @@ const MapView = (() => {
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
+      gestureHandling: 'greedy',  // captura tots els gestos, evita que el browser intercepti
     });
 
     _initialized = true;

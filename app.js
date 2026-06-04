@@ -359,9 +359,8 @@ const App = (() => {
     const render = () => {
       if (_autoAdvanceTimer) clearInterval(_autoAdvanceTimer);
       const video = list[idx];
-      const previewUrl = `https://drive.google.com/file/d/${video.fileId}/preview?rm=minimal`;
+      const previewUrl = `https://www.googleapis.com/drive/v3/files/${video.fileId}?alt=media`;
       const thumbUrl   = `https://drive.google.com/thumbnail?id=${video.fileId}&sz=w800`;
-      const hora       = video.timestamp ? new Date(video.timestamp).toLocaleTimeString('ca', { hour: '2-digit', minute: '2-digit' }) : '';
 
       overlay.innerHTML = `
         <div class="vplayer">
@@ -369,14 +368,12 @@ const App = (() => {
             <button class="vplayer-close" id="vplayer-close">← Tornar</button>
             ${shuffle && list.length > 1 ? `<span style="font-size:0.78rem;color:var(--text-muted)">Reproducció automàtica en 45s</span>` : ''}
           </div>
-          <div class="vplayer-frame" id="vplayer-frame-${idx}" style="position:relative">
-            <iframe id="vplayer-iframe-${idx}" src="${previewUrl}" allow="autoplay; fullscreen" allowfullscreen
-              style="width:100%;height:100%;border:0;border-radius:12px;display:block"></iframe>
+          <div class="vplayer-frame" id="vplayer-frame-${idx}">
             <div class="vplayer-cover" id="vplayer-cover-${idx}">
               <div class="vplayer-cover-thumb" style="background-image:url('${thumbUrl}')"></div>
               <div class="vplayer-cover-icon">
                 <div class="vplayer-loading-ring"></div>
-                <span>▶</span>
+                <span id="vplayer-pct-${idx}">▶</span>
               </div>
             </div>
           </div>
@@ -396,33 +393,67 @@ const App = (() => {
 
       document.getElementById('vplayer-close').onclick = () => {
         if (_autoAdvanceTimer) clearInterval(_autoAdvanceTimer);
+        // Alliberar blob URL de memòria
+        const vid = overlay.querySelector('video');
+        if (vid?.src?.startsWith('blob:')) URL.revokeObjectURL(vid.src);
         overlay.classList.add('hidden');
         overlay.innerHTML = '';
         document.getElementById('videos-grid').classList.remove('hidden');
       };
 
-      // Coberta negra opaca sobre l'iframe fins que Drive acabi de carregar
-      const cover  = document.getElementById(`vplayer-cover-${idx}`);
-      const iframe = document.getElementById(`vplayer-iframe-${idx}`);
-      const removeCover = () => {
-        if (!cover) return;
-        cover.style.opacity = '0';
-        cover.style.pointerEvents = 'none';
-        setTimeout(() => cover?.remove(), 600);
-      };
-      // Intentar detectar quan Drive ha acabat de carregar
-      if (iframe) {
-        iframe.addEventListener('load', () => setTimeout(removeCover, 800));
-      }
-      // Fallback: eliminar la coberta als 4s tant si i com no
-      const coverTimer = setTimeout(removeCover, 4000);
-      // Permetre clicar la coberta per eliminar-la manualment
-      if (cover) cover.addEventListener('click', () => { clearTimeout(coverTimer); removeCover(); });
-
       const goNext = () => {
         if (idx < list.length - 1) { idx++; render(); }
-        else if (shuffle) { idx = 0; render(); } // loop en mode continu
+        else if (shuffle) { idx = 0; render(); }
       };
+
+      document.getElementById('vplayer-prev')?.addEventListener('click', () => { if (idx > 0) { idx--; render(); } });
+      document.getElementById('vplayer-next')?.addEventListener('click', goNext);
+      if (shuffle && list.length > 1) {
+        _autoAdvanceTimer = setInterval(goNext, 45000);
+      }
+
+      // ── Fetch vídeo com blob → <video> natiu (sense iframe Drive) ──
+      const frame  = document.getElementById(`vplayer-frame-${idx}`);
+      const cover  = document.getElementById(`vplayer-cover-${idx}`);
+      const pctEl  = document.getElementById(`vplayer-pct-${idx}`);
+      const token  = Auth.getToken();
+      const apiUrl = `https://www.googleapis.com/drive/v3/files/${video.fileId}?alt=media`;
+
+      (async () => {
+        try {
+          const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+          const res = await fetch(apiUrl, { headers });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const contentLength = +res.headers.get('Content-Length') || 0;
+          const reader = res.body.getReader();
+          const chunks = [];
+          let received = 0;
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            received += value.length;
+            if (contentLength && pctEl) {
+              pctEl.textContent = Math.round(received / contentLength * 100) + '%';
+            }
+          }
+          const blob    = new Blob(chunks, { type: res.headers.get('Content-Type') || 'video/mp4' });
+          const blobUrl = URL.createObjectURL(blob);
+          const videoEl = document.createElement('video');
+          videoEl.src         = blobUrl;
+          videoEl.controls    = true;
+          videoEl.autoplay    = true;
+          videoEl.playsInline = true;
+          videoEl.style.cssText = 'width:100%;height:100%;border-radius:12px;display:block;background:#000';
+          frame?.appendChild(videoEl);
+          // Amagar coberta
+          if (cover) { cover.style.opacity = '0'; cover.style.pointerEvents = 'none'; }
+          setTimeout(() => cover?.remove(), 600);
+        } catch(err) {
+          if (pctEl) pctEl.textContent = '⚠️ Error';
+          console.error('Error carregant vídeo:', err);
+        }
+      })();
 
       document.getElementById('vplayer-prev')?.addEventListener('click', () => { if (idx > 0) { idx--; render(); } });
       document.getElementById('vplayer-next')?.addEventListener('click', goNext);
