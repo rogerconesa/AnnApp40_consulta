@@ -2703,3 +2703,139 @@ button.admin-item:hover .admin-item-overlay { opacity: 1; }
 .gallery-highlighted .carousel-scroll {
   padding-bottom: 0.5rem;
 }
+
+/* ============================================================
+   MIDES — header +20%, filtres +20%, bottom nav +25%
+   ============================================================ */
+
+/* Header més gran */
+.app-header {
+  padding: 0 16px;
+  height: 68px;       /* era ~54px */
+  min-height: 68px;
+}
+.header-logo {
+  font-size: 1.45rem; /* era ~1.1rem */
+  font-weight: 800;
+}
+.logo-40 { font-size: 1.45rem; }
+.avatar { width: 38px; height: 38px; }
+.btn-logout { font-size: 0.88rem; padding: 7px 14px; }
+.btn-theme-toggle { padding: 8px; }
+.theme-icon { width: 22px; height: 22px; }
+
+/* Filtres pills +20% */
+.filter-pill {
+  font-size: 0.88rem;
+  padding: 8px 14px;
+  gap: 6px;
+}
+.filter-pill svg:not(.chevron) { width: 17px; height: 17px; }
+.filter-pill .chevron { width: 14px; height: 14px; }
+.year-pill-label { font-size: 0.85rem; }
+.filters-row-main, .filters-row-secondary { padding-left: 14px; padding-right: 14px; }
+.filters-row-main { padding-top: 10px; padding-bottom: 6px; gap: 8px; }
+.filters-row-secondary { padding-bottom: 10px; gap: 8px; }
+.filter-search-input { font-size: 0.95rem; padding: 0.72rem 1rem; }
+.drawer-opt { font-size: 0.9rem; padding: 6px 16px; }
+
+/* Bottom nav +25% */
+.bottom-nav {
+  padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+}
+.bottom-nav .nav-tab { padding: 8px 8px 4px; }
+.bottom-nav .nav-icon { width: 27px; height: 27px; }
+.bottom-nav .nav-tab span { font-size: 0.68rem; margin-top: 1px; }
+
+/* Compte per a l'alçada nova del nav */
+#screen-app { padding-bottom: 88px; }
+
+/* ============================================================
+   LIGHT MODE — header light + colors blaus als elements
+   ============================================================ */
+:root {
+  --header-bg: #ffffff;
+  --filter-bg: #f5f5f7;
+}
+[data-theme="dark"] {
+  --header-bg: #0a0a0a;
+  --filter-bg: #0a0a0a;
+}
+
+/* Header usa variable */
+.app-header {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Filtres uses variable */
+.filters-bar {
+  background: var(--filter-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Bottom nav */
+.bottom-nav { background: var(--header-bg); }
+
+/* Pills en light mode: vora i fons més visible */
+.filter-pill {
+  background: var(--bg2);
+  border-color: var(--border2);
+  color: var(--text2);
+  font-weight: 600;
+}
+
+/* Light mode: icones filtres en blau */
+[data-theme="light"] .filter-pill svg {
+  stroke: var(--accent);
+}
+[data-theme="light"] .filter-pill {
+  border-color: rgba(10,132,255,0.25);
+  background: rgba(10,132,255,0.04);
+}
+[data-theme="light"] .filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+[data-theme="light"] .filter-pill.active svg { stroke: #fff; }
+
+/* Slider en light mode */
+[data-theme="light"] .year-slider-track { background: rgba(10,132,255,0.2); }
+[data-theme="light"] .filter-year-pill { border-color: rgba(10,132,255,0.25); background: rgba(10,132,255,0.04); }
+
+/* Dark mode: filtres amb més contrast */
+[data-theme="dark"] .filter-pill {
+  background: #1c1c1e;
+  border-color: rgba(255,255,255,0.18);
+}
+[data-theme="dark"] .filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Barra de cerca IA */
+[data-theme="light"] .ia-search-bar { background: var(--bg); }
+[data-theme="light"] .ia-search-input-wrap {
+  background: #fff;
+  border: 1.5px solid rgba(10,132,255,0.35);
+}
+
+/* ── Botó autoplay ───────────────────────────── */
+.autoplay-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--accent);
+  border: none;
+  border-radius: 99px;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.autoplay-btn:hover { opacity: 0.85; }
+.autoplay-btn:active { opacity: 0.7; }

@@ -165,7 +165,7 @@ const MapView = (() => {
     const render = () => {
       const p = photos[idx];
       modal.innerHTML = `
-        <div style="position:relative;max-width:500px;width:100%;background:var(--bg2);border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
+        <div id="cmc-card" style="position:relative;max-width:500px;width:100%;background:var(--bg2);border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
           <button id="cmc-close" style="position:absolute;top:10px;right:12px;background:rgba(0,0,0,0.5);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;z-index:10">✕</button>
           <img src="${p.url}" style="width:100%;max-height:55dvh;object-fit:contain;background:#000;display:block" loading="lazy" />
           <div style="padding:12px 16px">
@@ -175,15 +175,29 @@ const MapView = (() => {
           </div>
           ${photos.length > 1 ? `
           <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 12px;gap:8px">
-            <button id="cmc-prev" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font);font-size:0.85rem" ${idx === 0 ? 'disabled' : ''}>‹ Anterior</button>
+            <button id="cmc-prev" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font);font-size:0.85rem" ${idx === 0 ? 'disabled' : ''}>‹</button>
             <span style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">${idx + 1} / ${photos.length}</span>
-            <button id="cmc-next" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font);font-size:0.85rem" ${idx === photos.length - 1 ? 'disabled' : ''}>Següent ›</button>
+            <button id="cmc-next" style="flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:var(--font);font-size:0.85rem" ${idx === photos.length - 1 ? 'disabled' : ''}>›</button>
           </div>` : ''}
         </div>
       `;
       document.getElementById('cmc-close').onclick = () => modal.remove();
       document.getElementById('cmc-prev')?.addEventListener('click', () => { if (idx > 0) { idx--; render(); } });
       document.getElementById('cmc-next')?.addEventListener('click', () => { if (idx < photos.length - 1) { idx++; render(); } });
+
+      // Swipe tàctil
+      const card = document.getElementById('cmc-card');
+      if (card) {
+        let startX = 0;
+        card.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+        card.addEventListener('touchend', e => {
+          const dx = e.changedTouches[0].clientX - startX;
+          if (Math.abs(dx) > 40) {
+            if (dx < 0 && idx < photos.length - 1) { idx++; render(); }
+            else if (dx > 0 && idx > 0) { idx--; render(); }
+          }
+        }, { passive: true });
+      }
     };
     render();
   }

@@ -90,6 +90,32 @@ const App = (() => {
       }
     }
 
+    // ── Autoplay de fotos ────────────────────────
+    let _autoplayTimer   = null;
+    let _autoplayPhotos  = [];
+    let _autoplayIdx     = 0;
+    const AUTOPLAY_DELAY = 3500;
+
+    function startAutoplay(photos) {
+      stopAutoplay();
+      if (!photos || photos.length === 0) return;
+      _autoplayPhotos = [...photos].sort(() => Math.random() - 0.5);
+      _autoplayIdx    = 0;
+      Gallery.openLightbox(_autoplayPhotos[0]);
+      _autoplayTimer  = setInterval(() => {
+        _autoplayIdx = (_autoplayIdx + 1) % _autoplayPhotos.length;
+        Gallery.openLightbox(_autoplayPhotos[_autoplayIdx]);
+      }, AUTOPLAY_DELAY);
+    }
+    function stopAutoplay() {
+      if (_autoplayTimer) { clearInterval(_autoplayTimer); _autoplayTimer = null; }
+    }
+    document.getElementById('lightbox-close')?.addEventListener('click', stopAutoplay);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') stopAutoplay(); });
+    document.getElementById('btn-autoplay')?.addEventListener('click', () => {
+      startAutoplay(Gallery.getFiltered ? Gallery.getFiltered() : []);
+    });
+
     // Detectar scroll final de la fila de filtres (treure degradat)
     const filterRow = document.querySelector('.filters-row-main');
     if (filterRow) {
