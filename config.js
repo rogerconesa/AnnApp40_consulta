@@ -21,10 +21,10 @@ const CONFIG = {
   // Google Drive
   DRIVE_FOLDER_ID: '1h0kMl3ZJqlOPfovzU-B1uIwLaRNMfIEZ',
 
-  // Scopes
+  // Scopes — drive.readonly permet llegir tots els fitxers (vídeos d'altri)
   SCOPES: [
     'openid', 'profile', 'email',
-    'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/drive.readonly',
     'https://www.googleapis.com/auth/spreadsheets'
   ].join(' '),
 

@@ -850,3 +850,74 @@ body { overscroll-behavior-x: none; }
   z-index: 2;
   text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
+
+/* ============================================
+   LIGHT MODE — filtres destacats i actius
+   ============================================ */
+[data-theme="light"] .filter-pill {
+  background: #fff;
+  border: 1.5px solid #c7c7cc;
+  color: #3a3a3c;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .filter-pill svg { stroke: #6e6e73; }
+[data-theme="light"] .filter-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(10,132,255,0.06);
+}
+[data-theme="light"] .filter-pill:hover svg { stroke: var(--accent); }
+
+/* Filtre actiu — blau sòlid igual que Autoplay */
+[data-theme="light"] .filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(10,132,255,0.3);
+}
+[data-theme="light"] .filter-pill.active svg { stroke: #fff; }
+[data-theme="light"] .filter-pill.active .chevron { stroke: #fff; }
+
+/* Slider pill */
+[data-theme="light"] .filter-year-pill {
+  background: #fff;
+  border: 1.5px solid #c7c7cc;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Sort pill */
+[data-theme="light"] .sort-pill {
+  background: #fff;
+  border: 1.5px solid #c7c7cc;
+  color: #3a3a3c;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .sort-pill:hover,
+[data-theme="light"] .sort-pill.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(10,132,255,0.06);
+}
+
+/* View toggle */
+[data-theme="light"] .view-toggle {
+  background: #f0f0f2;
+  border-color: #c7c7cc;
+}
+[data-theme="light"] .view-toggle-btn { color: #6e6e73; }
+[data-theme="light"] .view-toggle-btn.active { background: var(--accent); color: #fff; }
+
+/* Barra de filtres fons blanc */
+[data-theme="light"] .filters-bar { background: #f5f5f7; border-bottom: 1px solid #e5e5ea; }
+[data-theme="light"] .ia-search-bar { background: #f5f5f7; }
+
+/* Sort pill meta (al costat d'autoplay) */
+[data-theme="light"] .sort-pill-meta {
+  background: #fff;
+  border-color: #c7c7cc;
+  color: #3a3a3c;
+}
+[data-theme="light"] .sort-pill-meta.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
