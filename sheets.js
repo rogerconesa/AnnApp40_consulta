@@ -26,11 +26,15 @@ const Sheets = (() => {
     return isNaN(n) ? null : n;
   }
 
-  async function readAll() {
+  async function readAll(_isRetry) {
     const range    = `'${CONFIG.SHEET_NAME}'!A2:O`;
     const endpoint = _readUrl(range);
     const res = await fetch(endpoint, { headers: _headers() });
-    if (!res.ok) throw new Error('Error llegint Sheets');
+    if (res.status === 401 && !_isRetry) {
+      await Auth.refreshToken();
+      return readAll(true);
+    }
+    if (!res.ok) throw new Error('Error llegint Sheets (' + res.status + ')');
     const data = await res.json();
     const rows = data.values || [];
     return rows.map(r => {
@@ -128,17 +132,16 @@ const Sheets = (() => {
 
   async function readDia() {
     const sheetName = CONFIG.SHEET_DIA || 'FotosDia';
-    const range     = `'${sheetName}'!A2:O`;
+    // Llegir des de A1 per no perdre la fila 1 si no hi ha capçalera
+    const range     = `'${sheetName}'!A1:O`;
     const endpoint  = _readUrl(range);
     const res = await fetch(endpoint, { headers: _headers() });
     if (!res.ok) {
-      // Si la pestanya no existeix encara, retornar buit
       if (res.status === 400) return [];
       throw new Error('Error llegint Fotos del dia');
     }
     const data = await res.json();
-    const rows = data.values || [];
-    return rows.map(r => ({
+    return (data.values || []).map(r => ({
       id:         r[0]  || '',
       fileId:     r[1]  || '',
       url:        r[2]  || '',
@@ -154,7 +157,7 @@ const Sheets = (() => {
       lng:        _parseCoord(r[12]),
       tipus:      r[13] || 'foto',
       preferida:  r[14] === 'true',
-    }));
+    })).filter(r => r.fileId && r.fileId.length > 10 && r.fileId !== 'fileId');
   }
 
   return { readAll, updateRowByFileId, deleteRowByFileId, deleteFile, readDia };

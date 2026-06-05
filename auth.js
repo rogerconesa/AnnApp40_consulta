@@ -40,15 +40,14 @@ const Auth = (() => {
       _mode = 'google';
 
       if (savedProfile) {
-        // Tenim perfil en caché → mostrar app IMMEDIATAMENT sense esperar el token refresh
         _userProfile = savedProfile;
-        if (_onLoginCallback) _onLoginCallback(_userProfile);
-        // Refrescar el token en segon pla (sense bloquejar la UI)
-        refreshToken().catch(err => {
-          console.warn('Silent refresh fallback, intent amb token existent:', err);
-          // Si el token existent és vàlid, validar-lo; si no, desconnectar
-          _loadUserProfile();
-        });
+        // Refrescar token primer, llavors obrir l'app (evita 401 si el token ha caducat)
+        refreshToken()
+          .then(() => { if (_onLoginCallback) _onLoginCallback(_userProfile); })
+          .catch(() => {
+            // Refresh silenciós fallit: intentar igualment (el token pot ser vàlid encara)
+            _loadUserProfile();
+          });
       } else {
         // Sense perfil en caché → esperar el refresh (primera vegada)
         refreshToken().then(() => _loadUserProfile()).catch(() => _loadUserProfile());
