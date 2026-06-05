@@ -97,7 +97,10 @@ const Gallery = (() => {
     const defaults = { persona: 'Persona', lloc: 'Lloc', categoria: 'Categoria', qui: 'Qui' };
     Object.keys(defaults).forEach(key => {
       const lbl = document.getElementById(`flabel-${key}`);
-      const btn = lbl?.closest('.filter-icon-btn');
+      // Cercar el pill per data-filter o per id (compatible amb tots dos patrons)
+      const btn = document.querySelector(`.filter-pill[data-filter="${key}"]`)
+               || lbl?.closest('.filter-pill')
+               || lbl?.closest('.filter-icon-btn');
       if (!lbl) return;
 
       let txt, active;
@@ -461,9 +464,14 @@ const Gallery = (() => {
     return _lightboxContext === 'highlights' ? _highlightedPhotos : _filteredPhotos;
   }
 
+  const _vpMeta = document.querySelector('meta[name="viewport"]');
+  const _vpDefault = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+  const _vpZoom    = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
+
   function openLightbox(photo, context) {
     _lightboxPhoto   = photo;
     _lightboxContext = context || 'all';
+    if (_vpMeta) _vpMeta.content = _vpZoom; // permetre zoom a la foto
     const isVideo = photo.tipus === 'video';
 
     const img = document.getElementById('lightbox-img');
@@ -495,6 +503,7 @@ const Gallery = (() => {
     document.getElementById('lightbox-overlay').classList.add('hidden');
     document.body.style.overflow = '';
     _lightboxPhoto = null;
+    if (_vpMeta) _vpMeta.content = _vpDefault; // restaurar no-zoom a la resta de l'app
   }
 
   function _prevPhoto() {

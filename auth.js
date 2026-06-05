@@ -17,7 +17,7 @@ const Auth = (() => {
     _onLogoutCallback = onLogout;
 
     // Mode password
-    if (sessionStorage.getItem('anna40_auth') === 'password') {
+    if (localStorage.getItem('anna40_auth') === 'password' || sessionStorage.getItem('anna40_auth') === 'password') {
       _mode = 'password';
       _userProfile = { name: 'Convidada', email: '', picture: '' };
       if (_onLoginCallback) _onLoginCallback(_userProfile);
@@ -75,7 +75,7 @@ const Auth = (() => {
   function loginWithPassword(pwd) {
     if (pwd === CONFIG.GUEST_PASSWORD) {
       _mode = 'password';
-      sessionStorage.setItem('anna40_auth', 'password');
+      localStorage.setItem('anna40_auth', 'password'); sessionStorage.setItem('anna40_auth', 'password');
       _userProfile = { name: 'Convidada', email: '', picture: '' };
       if (_onLoginCallback) _onLoginCallback(_userProfile);
       return true;
@@ -94,6 +94,7 @@ const Auth = (() => {
     _mode        = null;
     localStorage.removeItem('anna40_token'); sessionStorage.removeItem('anna40_token');
     localStorage.removeItem('anna40_profile');
+    localStorage.removeItem('anna40_auth');
     sessionStorage.removeItem('anna40_auth');
     if (_onLogoutCallback) _onLogoutCallback();
   }
