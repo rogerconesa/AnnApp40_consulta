@@ -97,10 +97,7 @@ const Gallery = (() => {
     const defaults = { persona: 'Persona', lloc: 'Lloc', categoria: 'Categoria', qui: 'Qui' };
     Object.keys(defaults).forEach(key => {
       const lbl = document.getElementById(`flabel-${key}`);
-      // Cercar el pill per data-filter o per id (compatible amb tots dos patrons)
-      const btn = document.querySelector(`.filter-pill[data-filter="${key}"]`)
-               || lbl?.closest('.filter-pill')
-               || lbl?.closest('.filter-icon-btn');
+      const btn = lbl?.closest('.filter-icon-btn');
       if (!lbl) return;
 
       let txt, active;
