@@ -861,3 +861,73 @@ html {
 #screen-app {
   overscroll-behavior-y: contain;
 }
+
+/* ============================================
+   FILTRES REDISSENYATS (sense IA, més espai)
+   ============================================ */
+
+/* Pills de filtre: més grans */
+.filter-pill {
+  font-size: 0.88rem !important;
+  padding: 9px 16px !important;
+  gap: 6px !important;
+  font-weight: 600;
+}
+.filter-pill svg:not(.chevron) { width: 16px !important; height: 16px !important; }
+.filter-pill .chevron          { width: 13px !important; height: 13px !important; }
+
+/* Actiu: blau sòlid com Autoplay */
+.filter-pill.active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(10,132,255,0.35) !important;
+}
+.filter-pill.active svg { stroke: #fff !important; }
+.filter-pill.active::after { color: #fff !important; }
+
+/* Slider: ample complet (sense sort al costat) */
+.filters-row-secondary { gap: 0; padding: 6px 12px 10px; }
+.filter-year-pill { flex: 1 !important; max-width: 100% !important; }
+
+/* Sort al costat d'Autoplay */
+.sort-pill-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg2);
+  border: 1.5px solid var(--border2);
+  border-radius: 99px;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  white-space: nowrap;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.sort-pill-meta svg { width: 14px; height: 14px; stroke: currentColor; }
+.sort-pill-meta:hover { border-color: var(--accent); color: var(--accent); }
+.sort-pill-meta.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.sort-pill-meta.active svg { stroke: #fff; }
+
+/* Light mode: sort ben visible */
+[data-theme="light"] .sort-pill-meta {
+  background: #fff;
+  border: 1.5px solid #c7c7cc;
+  color: #1d1d1f;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+[data-theme="light"] .sort-pill-meta:hover,
+[data-theme="light"] .sort-pill-meta.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(10,132,255,0.35);
+}

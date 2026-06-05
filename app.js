@@ -190,17 +190,11 @@ const App = (() => {
     const sortBtn   = document.getElementById('btn-sort');
     const sortLabel = document.getElementById('sort-label');
     if (sortBtn) {
-      sortLabel.textContent = sortModes[0].label;
-      const updateSortLabel = (label) => {
-        sortLabel.textContent = label;
-        const ml = document.getElementById('sort-label-meta');
-        if (ml) ml.textContent = label;
-      };
+      if (sortLabel) sortLabel.textContent = sortModes[0].label;
       sortBtn.addEventListener('click', () => {
         _sortIdx = (_sortIdx + 1) % sortModes.length;
-        updateSortLabel(sortModes[_sortIdx].label);
+        if (sortLabel) sortLabel.textContent = sortModes[_sortIdx].label;
         sortBtn.classList.toggle('active', _sortIdx > 0);
-        document.getElementById('btn-sort-meta')?.classList.toggle('active', _sortIdx > 0);
         Gallery.setSort(sortModes[_sortIdx].key);
       });
     }

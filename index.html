@@ -111,10 +111,7 @@
               <input type="range" id="year-max" />
             </div>
           </div>
-          <button class="filter-pill sort-pill" id="btn-sort" title="Ordre">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
-            <span id="sort-label">Any ↑</span>
-          </button>
+
         </div>
 
         <!-- Persiana de filtres -->
@@ -140,15 +137,6 @@
         </div>
 
       </div>
-
-      <!-- Xat IA amb Gemini -->
-      <div class="ia-search-bar">
-        <div class="ia-search-input-wrap">
-          <span class="ia-icon">✨</span>
-          <input type="text" id="ia-input" class="ia-input" placeholder="Cerca: 'Roger a la platja', 'festa 2023'..." autocomplete="off" />
-          <button id="ia-send" class="ia-send-btn">➤</button>
-          <button id="ia-clear" class="ia-clear-btn hidden">✕</button>
-        </div>
         <div id="ia-status" class="ia-status hidden"></div>
         <div id="ia-response" class="ia-response hidden"></div>
       </div>
@@ -159,6 +147,10 @@
           <button id="btn-autoplay" class="autoplay-btn" title="Reproducció automàtica">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
             Autoplay
+          </button>
+          <button class="sort-pill-meta" id="btn-sort" title="Ordre">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+            <span id="sort-label">Any ↑</span>
           </button>
           <button id="btn-regal" class="regal-btn" title="El teu regal">🎁</button>
 
