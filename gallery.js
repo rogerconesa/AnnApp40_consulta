@@ -1,13 +1,12 @@
 // ============================================
 // ANNA40 — GALLERY v4
-// Selectors clàssics + xat IA Gemini
+// Gallery — fotos i navegació
 // ============================================
 
 const Gallery = (() => {
   let _allPhotos      = [];
   let _filteredPhotos = [];
   let _lightboxPhoto  = null;
-  let _iaFilteredIds  = null; // ids filtrats per la IA
 
   let _filters = {
     persona:   [],   // multi-select
@@ -23,7 +22,6 @@ const Gallery = (() => {
     _initYearSlider();
     _populateFilters();
     _bindFilterEvents();
-    _bindIA();
     _initLightbox();
     apply();
   }
@@ -169,7 +167,6 @@ const Gallery = (() => {
         const s = document.getElementById(`filter-${k}-search`); if (s) s.value = '';
       });
       _closeDrawer();
-      _resetIA();
       _initYearSlider();
       _populateFilters();
       apply();
@@ -245,156 +242,10 @@ const Gallery = (() => {
     }
   }
 
-  // ── Xat IA Gemini ─────────────────────────────
-  function _bindIA() {
-    const input = document.getElementById('ia-input');
-    const send  = document.getElementById('ia-send');
-    const clear = document.getElementById('ia-clear');
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); _handleIA(); }
-    });
-    send.addEventListener('click', _handleIA);
-    clear.addEventListener('click', _resetIA);
-  }
-
-  async function _handleIA() {
-    const input = document.getElementById('ia-input');
-    const query = input.value.trim();
-    if (!query) return;
-
-    _setIAStatus('loading', 'Buscant entre les fotos...');
-    document.getElementById('ia-send').disabled = true;
-    document.getElementById('ia-clear').classList.remove('hidden');
-
-    try {
-      const ids = await _queryGemini(query);
-      _iaFilteredIds = ids;
-      apply();
-      const count = _filteredPhotos.length;
-      if (count > 0) {
-        _setIAResponse(`✨ He trobat ${count} foto${count !== 1 ? 's' : ''} relacionades amb la teva cerca.`);
-      } else {
-        // Gemini no ha trobat res → provar cerca per text
-        _fallbackTextSearch(query);
-      }
-    } catch(err) {
-      console.warn('Cerca IA no disponible, usant cerca per text:', err);
-      _fallbackTextSearch(query);
-    } finally {
-      document.getElementById('ia-send').disabled = false;
-      _setIAStatus('', '');
-    }
-  }
-
-  function _fallbackTextSearch(query) {
-    const results = _simpleTextSearch(query);
-    _iaFilteredIds = results.map(p => p.fileId);
-    apply();
-    const count = results.length;
-    if (count > 0) {
-      _setIAResponse(`🔎 He trobat ${count} foto${count !== 1 ? 's' : ''} que coincideixen amb "${query}".`);
-    } else {
-      _iaFilteredIds = null;
-      apply();
-      _setIAResponse(`No he trobat fotos amb "${query}". Prova amb els filtres de dalt (persona, lloc, categoria) per afinar la cerca.`);
-    }
-  }
-
-  function _simpleTextSearch(query) {
-    // Paraules buides a ignorar
-    const stop = new Set(['busca','buscar','fotos','foto','video','videos','vídeo','vídeos',
-      'de','del','la','el','les','els','amb','en','a','i','o','un','una','que','on','quan',
-      'mostra','ensenya','vull','veure','totes','tots','les','algun','alguna']);
-
-    const words = query.toLowerCase()
-      .replace(/[?¿!¡.,;:]/g, ' ')
-      .split(/\s+/)
-      .filter(w => w.length > 1 && !stop.has(w));
-
-    if (words.length === 0) return [];
-
-    return _allPhotos.filter(p => {
-      const searchable = [p.any, p.lloc, p.notes, ...p.persones, ...p.categoria, p.pujatNom]
-        .join(' ').toLowerCase();
-      // Coincideix si TOTES les paraules clau hi són (o almenys una si només n'hi ha una)
-      return words.some(w => searchable.includes(w));
-    });
-  }
-
-  async function _queryGemini(query) {
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.GEMINI_MODEL}:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
-
-    const ctx = _allPhotos.map((p, i) =>
-      `[${i}|${p.fileId}] Tipus:${p.tipus} Any:${p.any} Lloc:${p.lloc} Persones:${p.persones.join(',')} Cat:${p.categoria.join(',')} Notes:${p.notes} Preferida:${p.preferida}`
-    ).join('\n');
-
-    const prompt = `Ets un assistent que ajuda a trobar fotos i vídeos d'un grup d'amics. Tens accés a ${_allPhotos.length} elements amb metadades.
-
-ELEMENTS:
-${ctx}
-
-Consulta de l'usuari: "${query}"
-
-Identifica TOTS els fileId que coincideixen amb la consulta. Respon NOMÉS amb el JSON, sense cap text addicional:
-{"ids": ["fileId1", "fileId2", ...]}
-
-Si no en trobes: {"ids": []}`;
-
-    const res = await fetch(GEMINI_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 800 }
-      })
-    });
-
-    if (!res.ok) throw new Error('Gemini error ' + res.status);
-    const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    const match = text.match(/\{[\s\S]*?"ids"\s*:\s*\[([\s\S]*?)\]\}/);
-    if (!match) return [];
-    try {
-      const parsed = JSON.parse(match[0]);
-      return parsed.ids || [];
-    } catch(e) {
-      return [];
-    }
-  }
-
-  function _setIAStatus(type, text) {
-    const status = document.getElementById('ia-status');
-    if (!text) { status.classList.add('hidden'); return; }
-    status.classList.remove('hidden');
-    if (type === 'loading') {
-      status.innerHTML = `<span class="ia-loading-dot"></span><span class="ia-loading-dot"></span><span class="ia-loading-dot"></span> ${text}`;
-    } else {
-      status.textContent = text;
-    }
-  }
-
-  function _setIAResponse(text) {
-    const resp = document.getElementById('ia-response');
-    if (!text) { resp.classList.add('hidden'); return; }
-    resp.classList.remove('hidden');
-    resp.textContent = text;
-  }
-
-  function _resetIA() {
-    _iaFilteredIds = null;
-    document.getElementById('ia-input').value = '';
-    document.getElementById('ia-clear').classList.add('hidden');
-    _setIAStatus('', '');
-    _setIAResponse('');
-    apply();
-  }
 
   // ── Apply filters ─────────────────────────────
   function apply() {
     _filteredPhotos = _allPhotos.filter(p => {
-      if (_iaFilteredIds !== null && !_iaFilteredIds.includes(p.fileId)) return false;
       if (_filters.persona.length   && !_filters.persona.every(f => p.persones.includes(f)))   return false;
       if (_filters.categoria.length && !_filters.categoria.some(f => p.categoria.includes(f))) return false;
       if (_filters.lloc  && p.lloc !== _filters.lloc)      return false;
