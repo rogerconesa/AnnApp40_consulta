@@ -931,3 +931,38 @@ html {
   color: #fff;
   box-shadow: 0 2px 8px rgba(10,132,255,0.35);
 }
+
+/* ============================================
+   FILTRES FINALS — mida ajustada + actiu blau
+   (sobreescriu tots els blocs anteriors)
+   ============================================ */
+
+/* Pills: reduir padding per que cabien tots */
+html body .filter-pill {
+  font-size: 0.82rem;
+  padding: 7px 11px;
+  gap: 5px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+html body .filter-pill svg:not(.chevron) { width: 15px; height: 15px; }
+html body .filter-pill .chevron          { width: 11px; height: 11px; }
+
+/* ACTIU: blau sòlid — guanya sobre qualsevol regla de tema */
+html body .filter-pill.active,
+html[data-theme="light"] body .filter-pill.active,
+html[data-theme="dark"]  body .filter-pill.active {
+  background:   var(--accent) !important;
+  border-color: var(--accent) !important;
+  color:        #fff          !important;
+  box-shadow:   0 2px 10px rgba(10,132,255,0.4) !important;
+}
+html body .filter-pill.active svg,
+html body .filter-pill.active .chevron,
+html[data-theme="light"] body .filter-pill.active svg,
+html[data-theme="light"] body .filter-pill.active .chevron {
+  stroke: #fff !important;
+}
+html body .filter-pill.active > span { color: #fff !important; }
+html body .filter-pill.active::after { color: #fff !important; }
