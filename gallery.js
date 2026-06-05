@@ -413,8 +413,51 @@ const Gallery = (() => {
       if (e.target === document.getElementById('lightbox-overlay')) closeLightbox();
     });
     document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-    document.getElementById('lightbox-prev').addEventListener('click', _prevPhoto);
-    document.getElementById('lightbox-next').addEventListener('click', _nextPhoto);
+    document.getElementById('lightbox-prev').addEventListener('click', () => { _resetImgZoom(); _prevPhoto(); });
+    document.getElementById('lightbox-next').addEventListener('click', () => { _resetImgZoom(); _nextPhoto(); });
+
+    // ── Bloquejar zoom del browser a tota la pàgina ──
+    // iOS Safari ignora user-scalable=no; cal interceptar touchmove amb 2 dits
+    document.addEventListener('touchmove', e => {
+      if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+
+    // ── Pinch-zoom manual NOMÉS a la imatge del lightbox ──
+    let _imgScale = 1, _lastDist = 0;
+
+    const _getImg    = () => document.querySelector('#lightbox-overlay .lightbox-img-wrap img');
+    const _resetImgZoom = () => {
+      _imgScale = 1;
+      const img = _getImg();
+      if (img) img.style.transform = '';
+    };
+
+    const lbOvr = document.getElementById('lightbox-overlay');
+    lbOvr.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        _lastDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    lbOvr.addEventListener('touchmove', e => {
+      if (e.touches.length !== 2) return;
+      // Aplicar zoom a la imatge via CSS transform (no al browser)
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      _imgScale = Math.max(1, Math.min(5, _imgScale * (dist / _lastDist)));
+      _lastDist = dist;
+      const img = _getImg();
+      if (img) img.style.transform = `scale(${_imgScale})`;
+    }, { passive: true });
+
+    lbOvr.addEventListener('touchend', e => {
+      if (e.touches.length === 0 && _imgScale < 1.1) _resetImgZoom();
+    }, { passive: true });
 
     // Swipe al lightbox — bloquejar navegació del browser i distingir pinch de swipe
     // IMPORTANT: no bloquejar taps sobre botons (✕, ✏️, ‹, ›)
@@ -464,14 +507,9 @@ const Gallery = (() => {
     return _lightboxContext === 'highlights' ? _highlightedPhotos : _filteredPhotos;
   }
 
-  const _vpMeta = document.querySelector('meta[name="viewport"]');
-  const _vpDefault = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-  const _vpZoom    = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
-
   function openLightbox(photo, context) {
     _lightboxPhoto   = photo;
     _lightboxContext = context || 'all';
-    if (_vpMeta) _vpMeta.content = _vpZoom; // permetre zoom a la foto
     const isVideo = photo.tipus === 'video';
 
     const img = document.getElementById('lightbox-img');
@@ -503,7 +541,6 @@ const Gallery = (() => {
     document.getElementById('lightbox-overlay').classList.add('hidden');
     document.body.style.overflow = '';
     _lightboxPhoto = null;
-    if (_vpMeta) _vpMeta.content = _vpDefault; // restaurar no-zoom a la resta de l'app
   }
 
   function _prevPhoto() {
