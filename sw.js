@@ -1,4 +1,4 @@
-const CACHE = 'anna40-v1';
+const CACHE = 'anna40-v2';
 const ASSETS = [
   '/index.html', '/main.css', '/app.js', '/auth.js', '/config.js',
   '/gallery.js', '/geocoder.js', '/map.js', '/sheets.js', '/ui.js',
