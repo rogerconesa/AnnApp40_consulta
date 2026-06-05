@@ -563,11 +563,13 @@ Si no en trobes: {"ids": []}`;
     document.getElementById('lightbox-next').addEventListener('click', _nextPhoto);
 
     // Swipe al lightbox — bloquejar navegació del browser i distingir pinch de swipe
-    let _lbStartX = 0, _lbStartY = 0, _lbIsPinch = false;
+    // IMPORTANT: no bloquejar taps sobre botons (✕, ✏️, ‹, ›)
+    let _lbStartX = 0, _lbStartY = 0, _lbIsPinch = false, _lbOnButton = false;
     const lbOverlay = document.getElementById('lightbox-overlay');
 
     lbOverlay?.addEventListener('touchstart', e => {
-      _lbIsPinch = e.touches.length > 1; // dos dits = pinch, no swipe
+      _lbIsPinch  = e.touches.length > 1;
+      _lbOnButton = !!e.target.closest('button, a');
       if (!_lbIsPinch) {
         _lbStartX = e.touches[0].clientX;
         _lbStartY = e.touches[0].clientY;
@@ -575,18 +577,16 @@ Si no en trobes: {"ids": []}`;
     }, { passive: true });
 
     lbOverlay?.addEventListener('touchmove', e => {
-      if (_lbIsPinch) return; // permetre pinch-zoom natiu
-      // Bloquejar pan horitzontal per evitar que iOS surti de la pàgina
+      if (_lbIsPinch || _lbOnButton) return; // no interferir amb botons ni pinch
       const dx = e.touches[0].clientX - _lbStartX;
       const dy = e.touches[0].clientY - _lbStartY;
       if (Math.abs(dx) > Math.abs(dy)) e.preventDefault();
     }, { passive: false });
 
     lbOverlay?.addEventListener('touchend', e => {
-      if (_lbIsPinch || e.changedTouches.length > 1) return;
+      if (_lbIsPinch || _lbOnButton || e.changedTouches.length > 1) return;
       const dx = e.changedTouches[0].clientX - _lbStartX;
       const dy = e.changedTouches[0].clientY - _lbStartY;
-      // Swipe vàlid: horitzontal dominant (ratio 2:1) i mínim 50px
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 2) {
         if (dx < 0) _nextPhoto();
         else         _prevPhoto();
