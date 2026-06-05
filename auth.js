@@ -41,13 +41,15 @@ const Auth = (() => {
 
       if (savedProfile) {
         _userProfile = savedProfile;
-        // Refrescar token primer, llavors obrir l'app (evita 401 si el token ha caducat)
-        refreshToken()
-          .then(() => { if (_onLoginCallback) _onLoginCallback(_userProfile); })
-          .catch(() => {
-            // Refresh silenciós fallit: intentar igualment (el token pot ser vàlid encara)
-            _loadUserProfile();
-          });
+        // Mostrar app IMMEDIATAMENT amb el perfil guardat (optimista)
+        // Si el token ha caducat, el retry del Sheets gestionarà el 401
+        if (_onLoginCallback) _onLoginCallback(_userProfile);
+        // Refrescar token en segon pla (silenciós, sense bloquejar)
+        refreshToken().catch(() => {
+          // Si falla el silent refresh (p.ex. scope nou), seguim amb el token existent
+          // Les crides a l'API reintentaran si reben 401
+          console.info('Silent refresh no disponible, seguint amb token existent');
+        });
       } else {
         // Sense perfil en caché → esperar el refresh (primera vegada)
         refreshToken().then(() => _loadUserProfile()).catch(() => _loadUserProfile());
