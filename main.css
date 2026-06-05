@@ -1,3 +1,9 @@
+/* ── Bloquejar zoom absolut (iOS Safari) ── */
+html, body {
+  touch-action: pan-x pan-y;
+  -ms-touch-action: pan-x pan-y;
+}
+
 /* ============================================
    ANNA40 — MAIN CSS — versió neta
    ============================================ */
