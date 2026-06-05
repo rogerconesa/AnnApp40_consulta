@@ -32,12 +32,27 @@ const Auth = (() => {
     _initGoogleClient();
 
     // Token guardat (localStorage sobreviu a refresh)
-    const saved = localStorage.getItem('anna40_token') || sessionStorage.getItem('anna40_token');
+    const saved        = localStorage.getItem('anna40_token') || sessionStorage.getItem('anna40_token');
+    const savedProfile = (() => { try { return JSON.parse(localStorage.getItem('anna40_profile') || 'null'); } catch { return null; } })();
+
     if (saved) {
       _accessToken = saved;
       _mode = 'google';
-      // Silent refresh per validar/renovar el token sense popup
-      refreshToken().then(() => _loadUserProfile()).catch(() => _loadUserProfile());
+
+      if (savedProfile) {
+        // Tenim perfil en caché → mostrar app IMMEDIATAMENT sense esperar el token refresh
+        _userProfile = savedProfile;
+        if (_onLoginCallback) _onLoginCallback(_userProfile);
+        // Refrescar el token en segon pla (sense bloquejar la UI)
+        refreshToken().catch(err => {
+          console.warn('Silent refresh fallback, intent amb token existent:', err);
+          // Si el token existent és vàlid, validar-lo; si no, desconnectar
+          _loadUserProfile();
+        });
+      } else {
+        // Sense perfil en caché → esperar el refresh (primera vegada)
+        refreshToken().then(() => _loadUserProfile()).catch(() => _loadUserProfile());
+      }
     }
   }
 
@@ -77,6 +92,7 @@ const Auth = (() => {
     _userProfile = null;
     _mode        = null;
     localStorage.removeItem('anna40_token'); sessionStorage.removeItem('anna40_token');
+    localStorage.removeItem('anna40_profile');
     sessionStorage.removeItem('anna40_auth');
     if (_onLogoutCallback) _onLogoutCallback();
   }
@@ -110,6 +126,7 @@ const Auth = (() => {
         return;
       }
       _userProfile = await res.json();
+      localStorage.setItem('anna40_profile', JSON.stringify(_userProfile));
       if (_onLoginCallback) _onLoginCallback(_userProfile);
     } catch(err) {
       console.error('Error perfil:', err);

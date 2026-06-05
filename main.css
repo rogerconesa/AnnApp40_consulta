@@ -852,3 +852,12 @@ body { overscroll-behavior-x: none; }
 }
 [data-theme="light"] .view-toggle-btn { color: #6e6e73; }
 [data-theme="light"] .view-toggle-btn.active { background: var(--accent); color: #fff; }
+
+/* ── Bloquejar pull-to-refresh en mòbil ──────── */
+/* Evita que el gest de "estirar cap avall" faci reload de la pàgina */
+html {
+  overscroll-behavior-y: none;
+}
+#screen-app {
+  overscroll-behavior-y: contain;
+}
